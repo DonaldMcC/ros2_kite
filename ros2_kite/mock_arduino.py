@@ -40,6 +40,7 @@ oscilation that has been going on
 import time
 import math
 import rclpy
+from rclpy.node import Node
 import argparse
 from std_msgs.msg import String, Int16
 from kite_funcs import getresist, conmaxleft, conmaxright
@@ -57,44 +58,43 @@ SPEED_ACT = 30.0  # mm/sec
 FORCE_ACT = 200  # N but not sure if will actually use this
 CIRC_ACT = 2 * math.pi * DIST_ACT
 
+class MinimalPublisher(Node):
 
-def listen_motormsg():
-    rclpy.Subscriber('motormsg', Int16, callback, queue_size=1)
+    def __init__(self):
+        super().__init__('minimal_publisher')
+        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        timer_period = 0.5  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.i = 0
 
+    def timer_callback(self):
+        msg = String()
+        msg.data = 'Hello World: %d' % self.i
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%s"' % msg.data)
+        self.i += 1
 
-def callback(data):
-    global motorvalue
-    motorvalue = data.data
-    return
-
-
-def get_motorv():
-    global motorvalue
-    return motorvalue
-
-
-def mock_kiteangle(message):
-    global motorvalue
-    global barangle
-    pub = rclpy.Publisher(message, Int16, queue_size=1)
-    rclpy.init_node('mock_arduino', anonymous=False)
-    rate = rclpy.Rate(20)  # Cycles per Second
-    # left_act_pos = get_coord(0-DIST_ACT, 0, barangle) not convinced this serves purpose
-    loop_time = round(time.monotonic() * 1000)
-    listen_motormsg()
-
-    while not rclpy.is_shutdown():
-        get_motorv()
-        print('motorv', motorvalue)
-        cycle_time = round(time.monotonic() * 1000) - loop_time
+    def mock_kiteangle(message):
+        global motorvalue
+        global barangle
+        pub = rclpy.Publisher(message, Int16, queue_size=1)
+        rclpy.init_node('mock_arduino', anonymous=False)
+        rate = rclpy.Rate(20)  # Cycles per Second
+        # left_act_pos = get_coord(0-DIST_ACT, 0, barangle) not convinced this serves purpose
         loop_time = round(time.monotonic() * 1000)
-        barangle = mockangle(barangle, cycle_time)
-        resistance = getresist(barangle)
-        pub.publish(resistance)
-        rospy.loginfo(barangle)
-        print(cycle_time, barangle, resistance)
-        rate.sleep()
-    return True
+        #listen_motormsg()
+
+        while not rclpy.is_shutdown():
+            get_motorv()
+            print('motorv', motorvalue)
+            cycle_time = round(time.monotonic() * 1000) - loop_time
+            loop_time = round(time.monotonic() * 1000)
+            barangle = mockangle(barangle, cycle_time)
+            resistance = getresist(barangle)
+            pub.publish(resistance)
+            print(cycle_time, barangle, resistance)
+            rate.sleep()
+        return True
 
 
 def mockangle(angle, elapsed_time):
@@ -129,7 +129,38 @@ def mockangle(angle, elapsed_time):
     return angle
 
 
+
+
+def listen_motormsg():
+    rclpy.Subscriber('motormsg', Int16, callback, queue_size=1)
+
+
+def callback(data):
+    global motorvalue
+    motorvalue = data.data
+    return
+
+
+def get_motorv():
+    global motorvalue
+    return motorvalue
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    minimal_publisher=MinimalPublisher()
+    rclpy.spin(minimal_publisher)
+    # Destroy the node explicitly
+    # (optional - otherwise it will be done automatically
+    # when the garbage collector destroys the node object)
+    minimal_publisher.destroy_node()
+    rclpy.shutdown()
+
+
 if __name__ == '__main__':
+    main()
+
+"""
     try:
         parser = argparse.ArgumentParser()
         parser.add_argument('-m', '--message', type=str, default='kiteangle',
@@ -138,3 +169,4 @@ if __name__ == '__main__':
         new_angle = mock_kiteangle(args.message)
     except rclpy.ROSInterruptException:
         pass
+"""
