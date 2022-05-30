@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'mock_ard = ros2_kite.mock_arduino:main',
         ],
     },
 )

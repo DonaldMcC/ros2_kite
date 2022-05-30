@@ -15,9 +15,6 @@ for a wooden bar which will hold the kite by means of putting velcro on the hand
 lever with short distance to the actuator - using ones designed for automatic doors and longer distance
 to the kite handle.
 
-Actuator currently in use is https://www.ebay.co.uk/itm/303125148840
-above link long gone
-
 dist_act will be from fulcrum to actuator
 dist_handle will be from fulcrum to kite handle
 speed_act is speed of actuator in mm per second 30mm/sec is current setup
@@ -37,13 +34,20 @@ arduino doesn't have our actual parameters but we need to make the defaults the 
 oscilation that has been going on
 """
 
+# https://docs.ros.org/en/galactic/Tutorials/Writing-A-Simple-Py-Publisher-And-Subscriber.html
+# is basis for below
+
+# and runs with ros2 run ros2_kite mock_ard
 import time
 import math
 import rclpy
 from rclpy.node import Node
+import sys
+#sys.path.append("/path/to/install/planner_pkg/lib/python3.6/site-packages/planner_pkg")
+
 import argparse
 from std_msgs.msg import String, Int16
-from kite_funcs import getresist, conmaxleft, conmaxright
+from ros2_kite.kite_funcs import getresist, conmaxleft, conmaxright
 
 # from kite_funcs import checklimits, getresist, conmaxleft, conmaxright, conresistleft,\
 #     conresistright, conresistcentre
@@ -61,40 +65,45 @@ CIRC_ACT = 2 * math.pi * DIST_ACT
 class MinimalPublisher(Node):
 
     def __init__(self):
-        super().__init__('minimal_publisher')
-        self.publisher_ = self.create_publisher(String, 'topic', 10)
+        #super().__init__('minimal_publisher')
+        super().__init__('mock_arduino')
+        self.publisher_ = self.create_publisher(Int16, 'topic', 10)
         timer_period = 0.5  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
+        #self.timer = self.create_timer(timer_period, self.timer_callback)
+        self.timer = self.create_timer(timer_period, self.mock_kiteangle)
         self.i = 0
+        self.cycle_time = 0.5
 
     def timer_callback(self):
-        msg = String()
-        msg.data = 'Hello World: %d' % self.i
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+        msg2 = String()
+        msg2.data = 'Hello World: %d' % self.i
+        self.publisher_.publish(msg2)
+        self.get_logger().info('Publishing: "%s"' % msg2.data)
         self.i += 1
 
-    def mock_kiteangle(message):
+    def mock_kiteangle(self):
+        msg = Int16()
         global motorvalue
         global barangle
-        pub = rclpy.Publisher(message, Int16, queue_size=1)
-        rclpy.init_node('mock_arduino', anonymous=False)
-        rate = rclpy.Rate(20)  # Cycles per Second
+        #pub = rclpy.Publisher(message, Int16, queue_size=1)
+        #rclpy.init_node('mock_arduino', anonymous=False)
+        #rate = rclpy.Rate(20)  # Cycles per Second
         # left_act_pos = get_coord(0-DIST_ACT, 0, barangle) not convinced this serves purpose
-        loop_time = round(time.monotonic() * 1000)
+
         #listen_motormsg()
 
-        while not rclpy.is_shutdown():
-            get_motorv()
-            print('motorv', motorvalue)
-            cycle_time = round(time.monotonic() * 1000) - loop_time
-            loop_time = round(time.monotonic() * 1000)
-            barangle = mockangle(barangle, cycle_time)
-            resistance = getresist(barangle)
-            pub.publish(resistance)
-            print(cycle_time, barangle, resistance)
-            rate.sleep()
-        return True
+        get_motorv()
+        print('motorv', motorvalue)
+        #cycle_time = round(time.monotonic() * 1000) - loop_time
+        #loop_time = round(time.monotonic() * 1000)
+        barangle = mockangle(barangle, self.cycle_time)
+        resistance = getresist(barangle)
+        msg.data=resistance
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: "%s"' % msg.data)
+        print(self.cycle_time, barangle, resistance)
+        self.i += 1
+
 
 
 def mockangle(angle, elapsed_time):
@@ -147,14 +156,19 @@ def get_motorv():
 
 
 def main(args=None):
+    """
+    :param args:
+    :return:
+    """
     rclpy.init(args=args)
-    minimal_publisher=MinimalPublisher()
-    rclpy.spin(minimal_publisher)
+    mock_arduino=MinimalPublisher()
+    rclpy.spin(mock_arduino)
     # Destroy the node explicitly
     # (optional - otherwise it will be done automatically
     # when the garbage collector destroys the node object)
-    minimal_publisher.destroy_node()
+    mock_arduino.destroy_node()
     rclpy.shutdown()
+    return
 
 
 if __name__ == '__main__':
