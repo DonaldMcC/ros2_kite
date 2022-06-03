@@ -63,7 +63,6 @@ FORCE_ACT = 200  # N but not sure if will actually use this
 CIRC_ACT = 2 * math.pi * DIST_ACT
 
 class MinimalPublisher(Node):
-
     def __init__(self):
         #super().__init__('minimal_publisher')
         super().__init__('mock_arduino')
@@ -105,6 +104,27 @@ class MinimalPublisher(Node):
         self.i += 1
 
 
+class MinimalSubscriber(Node):
+    def __init__(self):
+        super().__init__('minimal_subscriber')
+        self.subscription = self.create_subscription(String,'topic', self.listener_callback, 10)
+        self.subscription  # prevent unused variable warning
+
+    def listener_callback(self, msg):
+        self.get_logger().info('I heard: "%s"' % msg.data)
+
+
+def not_main(args=None):
+    rclpy.init(args=args)
+    minimal_subscriber = MinimalSubscriber()
+    rclpy.spin(minimal_subscriber)
+    # Destroy the node explicitly
+    # (optional - otherwise it will be done automatically
+    # when the garbage collector destroys the node object)
+    minimal_subscriber.destroy_node()
+    rclpy.shutdown()
+
+
 
 def mockangle(angle, elapsed_time):
     """This now attempts to simulate how we believe the bar should respond to messages sent to
@@ -136,8 +156,6 @@ def mockangle(angle, elapsed_time):
     elif angle >= MAXRIGHT:
         angle = MAXRIGHT
     return angle
-
-
 
 
 def listen_motormsg():
