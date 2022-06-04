@@ -205,7 +205,7 @@ def display_stats():
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Mode: " + str(control.config), (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Area: " + str(kite.contourarea), (10, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    if len(joyaxes) > 2:
+    if use_ros2 and len(joyaxes) > 2:
         cv2.putText(frame, "joy:" + str(joyaxes[2]), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Counter:" + str(counter), (10, 170), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     return
@@ -278,7 +278,7 @@ KITETYPE = 'kite2'  # start for iphone SE video
 
 # initiate class instances
 # config = Config(setup='Manfly', source=1, input='Joystick')
-config = Config(source=1, kite=args.kite,  numcams=1, check_motor_sim=True, setup=args.setup, logging=1)
+config = Config(source=2, kite=args.kite,  numcams=1, check_motor_sim=True, setup=args.setup, logging=1)
 control = Controls(config.kite, step=16, motortest=args.motortest)
 kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(control.centrex, control.centrey, mode='fig8')
 base = Base(kitebarratio=1, safety=True)
@@ -305,9 +305,11 @@ if config.source == 1:
                 print("File not found continuing:", args.file)
     config.logging = 1
 else:
+    print('I am 2')
     # TODO at some point will change this to current directory and append file - not urgent
     # camera = cv2.VideoCapture(r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4')
-    camera = cv2.VideoCapture(r'/home/ubuntu/catkin_ws/src/kite_ros/scripts/2020_test1.mp4')
+    camera = cv2.VideoCapture(r'D:\dev\workspace\src\ros2_kite\ros2_kite\choppedkite_horizshort.mp4')
+    #camera = cv2.VideoCapture(r'/home/ubuntu/catkin_ws/src/kite_ros/scripts/2020_test1.mp4')
     # Videostream seems to create errors with playback
     # camera = VideoStream(src=r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4').start()
     # camera =a VideoStream(src=r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4').start()
@@ -366,7 +368,8 @@ fps = 15
 # fps = camera.get(cv2.CV_CAP_PROP_FPS)
 
 get_angles(kite, base, control, config)
-joybuttons, joyaxes = get_joystick()
+if use_ros2:
+    joybuttons, joyaxes = get_joystick()
 time.sleep(2)
 base.start_time = round(time.monotonic() * 1000)
 writelogheader(config, kite, base, control)
@@ -486,7 +489,7 @@ while True:
     if kite.autofly:
         kite.move_kite(control, 10)
 
-    if config.check_motor_sim:
+    if use_ros2 and config.check_motor_sim:
         base.mockangle = get_actmockangle(kite, base, control, config)
 
     display_stats()
@@ -512,8 +515,12 @@ while True:
     for x in control.newbuttons:  # change the button labels if mode has change
         window[x[0]].Update(x[1])
 
-    joybuttons, joyaxes = get_joystick()
-    quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
+    if use_ros2:
+        joybuttons, joyaxes = get_joystick()
+        quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
+    else:
+        quitkey=False
+        resetH=False
     if quitkey or event in ('Quit', None):  # quit if controls window closed or home key
         break
 

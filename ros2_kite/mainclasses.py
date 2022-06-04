@@ -22,38 +22,8 @@ This file should do the following things
 import time
 import math
 from collections import deque
-from kite_funcs import checklimits, getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre
+from kite_funcs import getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre
 from move_func import move_item
-
-
-def setangle(kite, base, controls):
-    """This will return targetbarangle for park mode based largely on kite target angle
-    We will start simple but may move to a pid mode if required
-
-    >>> k=Kite(400, targetangle=10)
-    >>> b=Base(barangle=15, kitebarratio=2)
-    >>> c=Controls(1)
-    >>> setangle(k,b,c)
-    10
-    """
-
-    # targetbarangle = checklimits((kite.targetangle * base.kitebarratio), base.maxleft, base.maxright)
-    targetbarangle = checklimits(kite.targetangle, base.maxleft, base.maxright)
-    return targetbarangle
-
-
-def setangleturn(kite, base):
-    """This should be a simple function as we will always aim to turn as fast as poss
-    identifying the point to ease off from max turn should be done as part of phase setting and not here
-
-    >>> k=Kite(400)
-    >>> b=Base(400)
-    >>> setangleturn(k,b)
-    -40
-    """
-
-    targetbarangle = base.maxright if kite.phase == "TurnR" else base.maxleft
-    return targetbarangle
 
 
 class Config(object):
