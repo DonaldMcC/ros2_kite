@@ -346,11 +346,14 @@ sg.theme('Black')  # Pysimplegui setup
 initmodestring = control.getmodestring(0)  # now always get same initial modestring
 button_list = initmodestring.split()[1:]
 sgmodestring = 'Mode: ' + initmodestring.split()[0]
-buttons = [sg.Button(x, size=(7, 3), pad=(4, 0), font='Helvetica 14') for i, x in enumerate(button_list)]
-layout = [[sg.Text(sgmodestring, key=sgmodestring, size=(70, 1), font='Helvetica 20')], buttons]
+# horizontal buttons
+# buttons = [sg.Button(x, size=(7, 3), pad=(4, 0), font='Helvetica 14') for i, x in enumerate(button_list)]
+#vertical buttons
+buttons = [[sg.Button(x, size=(7, 2), pad=(0, 1), font='Helvetica 14')] for i, x in enumerate(button_list)]
+layout = [[sg.Text(sgmodestring, key=sgmodestring, size=(10, 1), font='Helvetica 20')], buttons]
 
 # create the window and show it without the plot
-window = sg.Window('Kite ROS - Automated Flying', layout, no_titlebar=False, location=(50, 1000))
+window = sg.Window('Kite ROS - Automated Flying', layout, no_titlebar=False, location=(50, 50))
 event, values = window.read(timeout=0)
 
 if control.inputmode != 0:
@@ -517,10 +520,10 @@ while True:
 
     if use_ros2:
         joybuttons, joyaxes = get_joystick()
-        quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
     else:
-        quitkey=False
-        resetH=False
+        joybuttons=None
+        joyaxes=None
+    quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
     if quitkey or event in ('Quit', None):  # quit if controls window closed or home key
         break
 
