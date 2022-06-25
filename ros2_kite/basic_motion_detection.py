@@ -308,7 +308,7 @@ else:
     print('I am 2')
     # TODO at some point will change this to current directory and append file - not urgent
     # camera = cv2.VideoCapture(r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4')
-    camera = cv2.VideoCapture(r'/home/ubuntu/ros2_ws/src/ros2_kite/ros2_kite/choppedkite_horizshort.mp4')
+    camera = cv2.VideoCapture(r'/home/donald/ros2_ws/src/ros2_kite/ros2_kite/choppedkite_horizshort.mp4')
     #camera = cv2.VideoCapture(r'/home/ubuntu/catkin_ws/src/kite_ros/scripts/2020_test1.mp4')
     # Videostream seems to create errors with playback
     # camera = VideoStream(src=r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4').start()
