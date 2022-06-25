@@ -410,7 +410,7 @@ while True:
             break
         else:
             frame = camera
-    # print('frame', frame.shape[1])
+    #print('frame', frame.shape[1],frame.shape[0])
     height, width, channels = frame.shape
     writepictheader(config, height, width, fps)
 
@@ -498,6 +498,7 @@ while True:
     display_stats()
     display_flight(width)
     display_base(width)
+
     # kite_pos(kite.x, kite.y, kite.kiteangle, kite.dX, kite.dY, 0, 0)
     doaction = True if control.motortest or base.calibrate or control.inputmode == 3 else False
 
@@ -509,6 +510,7 @@ while True:
     if use_ros2:
         motor_msg(base.action)
     display_motor_msg(base.action, config.setup)
+
     cv2.imshow("contours", frame)
     # below commented due to failing on 18.04
     # kiteimage.pubimage(imagemessage, frame)
@@ -523,15 +525,18 @@ while True:
     else:
         joybuttons=None
         joyaxes=None
+    cv2.imshow('contours', frame)
+
     quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
-    if quitkey or event in ('Quit', None):  # quit if controls window closed or home key
+    #added cv2.waitKey back in for ubuntu 22.04 - not clear why it was neeed but window failed to display without it
+    if quitkey or event in ('Quit', None) or cv2.waitKey(1) & 0xFF == ord('q'):  # quit if controls window closed or home key
         break
 
     if resetH and stitcher:
         stitcher.cachedH = None
     counter += 1
     countertup = (counter,)
-    writelogs(config, kite, base, control, frame, height, width, countertup)
+    #writelogs(config, kite, base, control, frame, height, width, countertup)
     time.sleep(control.slow)
 
 # Exit and clean up
