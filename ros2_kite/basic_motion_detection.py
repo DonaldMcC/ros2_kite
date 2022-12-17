@@ -248,6 +248,11 @@ def present_calibrate_row(row):
            f'T_Resist: {row[3]} A_Resist: {row[4]} {row[5]} Cycles: {row[6]} {row[7]} '
 
 
+def mouse_events(event,x,y,flags,param):
+    if(event == cv2.EVENT_LBUTTONDOWN):
+        print('leftclick')
+
+
 # MAIN ROUTINE START
 parser = argparse.ArgumentParser()
 parser.add_argument('-f', '--file', type=str, default='cachedH.npy',
@@ -367,6 +372,7 @@ if control.inputmode != 0:
 writer = None
 cv2.startWindowThread()
 cv2.namedWindow('contours')
+cv2.setMouseCallback('contours', mouse_events)
 fps = 15
 # fps = camera.get(cv2.CV_CAP_PROP_FPS)
 
@@ -529,6 +535,7 @@ while True:
 
     #quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
     quitkey, resetH = control.mousehandler(kite, base, control, event)
+
     #added cv2.waitKey back in for ubuntu 22.04 - not clear why it was neeed but window failed to display without it
     if quitkey or event in ('Quit', None) or cv2.waitKey(1) & 0xFF == ord('q'):  # quit if controls window closed or home key
         break

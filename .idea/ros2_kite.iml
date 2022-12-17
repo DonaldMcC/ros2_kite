@@ -7,7 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/../../../ros2_galactic/ros2-windows/src" isTestSource="false" />
     </content>
     <content url="file://$MODULE_DIR$" />
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Python 3.11" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
