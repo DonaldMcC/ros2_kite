@@ -556,6 +556,108 @@ class Controls(object):
 
         return joybuttons and joybuttons[4] == 1, reset_stitcher  # quit
 
+    def mousehandler(self, kite, base, control, event=None):
+        # This will hopefully remove the joystick code to allow using with mouse and less code
+        # whole routine below complicated and want to look at mousehandling later so strip back
+        # first
+        reset_stitcher = False
+
+        # events for all input modes
+        if event == 'Mode':  # modechange on A key
+            self.inputmode += 1
+            kite.barbasedangle = True if self.inputmode == 3 else False
+            if self.inputmode == 4:  # simple toggle around 3 modes
+                self.inputmode = 0
+            self.modestring = self.getmodestring(self.inputmode)
+            self.newbuttons = self.get_change_mode_buttons(self.inputmode)
+            base.calibrate = False  # calibration always ends on Mode Change
+        elif event == 'Pause':  # pause on 1 key
+            if control.inputmode == 3:  # Manbar Calibrate
+                base.calibrate = 'Manual'  # then slow button becomes set to set and that actions and cycles
+                base.safety = False  # if starts true
+                self.newbuttons = self.get_change_phase_buttons(base)
+            elif not control.motortest:
+                time.sleep(10)
+            else:
+                base.action = 500  # Stop
+
+        # common handling when not in one of the man modes
+        if self.inputmode == 0 or self.inputmode == 1:
+            if event == 'Left':  # left:  # left
+                if not control.motortest:
+                    self.centrex -= self.step
+                    kite.routechange = True
+                else:
+                    base.action = 300
+            elif event == 'Right':  # right
+                if not control.motortest:
+                    self.centrex += self.step
+                    kite.routechange = True
+                else:
+                    base.action = 400
+            elif event == 'Up':  # up
+                if not control.motortest:
+                    self.centrey -= self.step
+                    kite.routechange = True
+                else:
+                    base.action = 100
+            elif event == 'Down':  # down
+                if not control.motortest:
+                    self.centrey += self.step
+                    kite.routechange = True
+                else:
+                    base.action = 200
+        elif self.inputmode == 2 or self.inputmode == 3:  # common events for Man modes
+            if event == 'Left':  # left
+                kite.x -= self.step
+            elif event == 'Right':  # right
+                kite.x += self.step
+            elif event == 'Up':  # up
+                kite.y -= self.step
+            elif event == 'Down':  # down
+                kite.y += self.step
+            elif event == 'Expand':  # slow
+                if base.calibrate != 'Manual':
+                    self.slow += 0.1
+                else:
+                    base.set_resistance(control)
+                    time.sleep(0.5)
+            elif event == 'Contract':  # fast
+                self.slow = 0.0
+
+        if self.inputmode == 0:  # Standard
+            if event == 'Wider':  # wider
+                self.halfwidth += self.step
+            elif event == 'Narrow':  # narrower
+                self.halfwidth -= self.step
+            elif event == 'Expand':  # expand
+                self.radius += self.step
+            elif event == 'Contract':  # contract
+                self.radius -= self.step
+        elif self.inputmode == 1:  # SetFlight
+            if event == 'Wider':  # park
+                kite.mode = 'Park'
+            elif event == 'Narrow' and kite.zone == 'Centre':  # must be in central zone to change mode
+                kite.mode = 'Wiggle'
+            elif event == 'Expand' and kite.zone == 'Centre':  # must be in central zone to change mode
+                kite.mode = 'Fig8'
+            elif event == 'Contract':  # Autofly
+                # base.reset = True # don't think this ever did anything
+                kite.autofly = True if kite.autofly == False else False
+        elif self.inputmode == 2:  # ManFlight - maybe switch to arrows - let's do this all
+            if event == 'Wider':  # anti clockwise
+                kite.kiteangle -= self.step
+            elif event == 'Narrow':  # clockwise
+                kite.kiteangle += self.step
+        elif self.inputmode == 3:  # ManBar - maybe switch to arrows - let's do this all
+            if event == 'Wider':  # anti-clockwise
+                base.action = 300
+            elif event == 'Narrow':  # clockwise
+                base.action = 400
+            else:
+                base.action = 0
+        return False, reset_stitcher  # quit
+
 
 def calc_route(centrex=400, centrey=300, halfwidth=200, radius=100):
     """This just calculates the 6 points in our basic figure of eight
