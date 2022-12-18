@@ -556,6 +556,80 @@ class Controls(object):
 
         return joybuttons and joybuttons[4] == 1, reset_stitcher  # quit
 
+    def keyhandler(self, key, kite, base=None):
+        # Relifted from old version temporarily
+        # this will now support a change of flight mode and operating mode so different keys will
+        # do different things depending on inputmode,
+        reset_stitcher = False
+        if self.inputmode == 0:  # Standard
+            if key == ord("l"):  # left
+                self.centrex -= self.step
+            elif key == ord("r"):  # right
+                self.centrex += self.step
+            elif key == ord("u"):  # up
+                self.centrey -= self.step
+            elif key == ord("d"):  # down
+                self.centrey += self.step
+            elif key == ord("w"):  # wider
+                self.halfwidth += self.step
+            elif key == ord("n"):  # narrower
+                self.halfwidth -= 1
+            elif key == ord("e"):  # expand
+                self.radius += self.step
+            elif key == ord("c"):  # contract
+                self.radius -= self.step
+            elif key == ord("s"):  # slow
+                self.slow += 0.1
+            elif key == ord("f"):  # fast
+                self.slow = 0.0
+            elif key == ord("p"):  # pause - this may apply in all modes
+                time.sleep(10)
+            # kite.routechange = True - don't want this triggered every time
+        elif self.inputmode == 1:  # SetFlight
+            if key == ord("p"):  # park
+                kite.mode = 'Park'
+            elif key == ord("r"):  # reset stitcher
+                reset_stitcher = True
+            elif key == ord("w") and kite.zone == 'Centre':  # must be in central zone to change mode
+                kite.mode = 'Wiggle'
+            elif key == ord("f") and kite.zone == 'Centre':  # must be in central zone to change mode
+                kite.mode = 'Fig8'
+            elif key == ord("s"):  # simulation
+                self.mode = 1
+            elif key == ord("n"):  # normal with kite being present
+                self.mode = 0
+        elif self.inputmode == 2:  # ManFlight - maybe switch to arrows
+            if key == ord("l"):  # left
+                kite.x -= self.step  # this will change
+            elif key == ord("r"):  # right
+                kite.x += self.step
+            elif key == ord("u"):  # up
+                kite.y -= self.step
+            elif key == ord("d"):  # down
+                kite.y += self.step
+            elif key == ord("g"):  # bar gauche
+                base.barangle -= self.step
+            elif key == ord("h"):  # bar rigHt
+                base.barangle += self.step
+            elif key == ord("a"):  # anti clockwise
+                kite.kiteangle -= self.step
+            elif key == ord("c"):  # clockwise
+                kite.kiteangle += self.step
+            elif key == ord("p"):  # pause - this may apply in all moades
+                time.sleep(10)
+
+        if key == ord("m"):  # modechange
+            print(self.inputmode)
+            self.inputmode += 1
+            if self.inputmode == 3:  # simple toggle around 3 modes
+                self.inputmode = 0
+            self.modestring = self.getmodestring()
+
+        # TODO what is this doing and why calc every loop???
+        self.routepoints = calc_route(self.centrex, self.centrey, self.halfwidth, self.radius)
+
+        return (key == ord("q"), reset_stitcher)  # quit pressed
+
     def mousehandler(self, kite, base, control, event=None):
         # This will hopefully remove the joystick code to allow using with mouse and less code
         # whole routine below complicated and want to look at mousehandling later so strip back

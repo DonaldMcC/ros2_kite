@@ -533,8 +533,16 @@ while True:
         joyaxes=None
     cv2.imshow('contours', frame)
 
-    #quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
-    quitkey, resetH = control.mousehandler(kite, base, control, event)
+    if config.input == 'Keyboard':
+        # change to -1 for debugging
+        # 20 seems to work better than 1 on virtualbox - not sure what the issue is
+        key = cv2.waitKey(20) & 0xff
+        if key != -1:
+            quitkey, resetH = control.keyhandler(key, kite, base)
+    else:
+        #quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
+        quitkey, resetH = control.mousehandler(kite, base, control, event)
+
 
     #added cv2.waitKey back in for ubuntu 22.04 - not clear why it was neeed but window failed to display without it
     if quitkey or event in ('Quit', None) or cv2.waitKey(1) & 0xFF == ord('q'):  # quit if controls window closed or home key
