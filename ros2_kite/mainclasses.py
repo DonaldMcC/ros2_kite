@@ -40,10 +40,10 @@ class Config(object):
 
     @staticmethod
     def getlogheaders():
-        return ('source', 'kite', 'masklimit', 'numcams', 'check_motor_sim', 'setup')
+        return 'source', 'kite', 'masklimit', 'numcams', 'check_motor_sim', 'setup'
 
     def getlogdata(self):
-        return (self.source, self.kite, self.masklimit, self.numcams, self.check_motor_sim, self.setup)
+        return self.source, self.kite, self.masklimit, self.numcams, self.check_motor_sim, self.setup
 
 
 class Base(object):
@@ -90,7 +90,6 @@ class Base(object):
         return (self.barangle, self.parkangle, self.maxright, self.maxleft, self.mockangle, self.targetbarangle,
                 self.inferbarangle, self.action, self.resistance, self.dist_act, self.speed_act, self.calibrate,
                 self.manual_calib_phase)
-
 
     def get_calibrate_time(self):
         # idea here is to have an expectation of how the setup should work based on components
@@ -195,13 +194,11 @@ class Kite(object):
         self.autofly = False
         return
 
-
     @staticmethod
     def getlogheaders():
         return ('K.x', 'K.y', 'K.mode', 'K.phase', 'K.direction', 'K.kiteangle', 'K.contourarea',
                 'K.targettype', 'K.targetx', 'K.targety', 'K.changezone', 'K.changephase', 'K.routechange',
                 'K.changephase', 'K.routechange', 'K.found', 'K.targetheading', 'K.targetangle')
-
 
     def getlogdata(self):
         return (self.x, self.y, self.mode, self.phase, self.direction, self.kiteangle, self.contourarea,
@@ -317,9 +314,9 @@ class Kite(object):
         if self.zone == 'Centre':
             movex, movey = self.targetx, self.targety
             # want to move beyond the target so extend x
-        elif self.zone == 'Left': # this just takes us to top of zone
+        elif self.zone == 'Left':  # this just takes us to top of zone
             movex, movey = control.routepoints[3]
-        else: # Right
+        else:  # Right
             movex, movey = control.routepoints[0]
 
         # Ensure we go past the point which toggles the change of zone
@@ -328,20 +325,16 @@ class Kite(object):
         self.x, self.y = move_item(self.x, self.y, movex, movey, speed)
         return
 
+
 class Controls(object):
 
     def __init__(self, config='Standard', step=8, motortest=False):
-        try:  # this will fail on windows but don't need yet and not convinced I need to set parameters separately
-            self.centrex = rospy.get_param('centrex', 800)
-            self.centrey = rospy.get_param('centrey', 300)
-            self.halfwidth = rospy.get_param('halfwidth', 200)
-            self.radius = rospy.get_param('radius', 100)
-        except (NameError, KeyError) as e:
-            #  mode='fig8'
-            self.centrex = 400
-            self.centrey = 300
-            self.halfwidth = 200
-            self.radius = 100
+
+        #  mode='fig8'
+        self.centrex = 400
+        self.centrey = 300
+        self.halfwidth = 200
+        self.radius = 100
         self.routepoints = calc_route(self.centrex, self.centrey, self.halfwidth, self.radius)
         self.config = config  # possible config ('Standard', 'Manual', 'Manbar')
         self.inputmode = 0 if self.config == 'Standard' else 2 if self.config == 'Manual' else 3
@@ -355,10 +348,10 @@ class Controls(object):
 
     @staticmethod
     def getlogheaders():
-        return ('C.config', 'C.inputmode', 'C.motortest')
+        return 'C.config', 'C.inputmode', 'C.motortest'
 
     def getlogdata(self):
-        return (self.config, self.inputmode, self.motortest)
+        return self.config, self.inputmode, self.motortest
 
     def getmodestring(self, inputmode):
         # So now always 11 buttons and first 5 and last 2 are std and iteration through should be std
@@ -374,7 +367,7 @@ class Controls(object):
 
     @staticmethod
     def get_change_mode_buttons(inputmode):
-        if inputmode == 0: # STD
+        if inputmode == 0:  # STD
             newbuttons = [('Mode: STD:', 'Mode: STD:'), ('Pause', 'Pause'), ('Wider', 'Wider'), ('Narrow', 'Narrow'),
                           ('Expand', 'Expand'), ('Contract', 'Contract')]
         elif inputmode == 1:  # SETFLIGHTMODE
@@ -383,7 +376,7 @@ class Controls(object):
         elif inputmode == 2:
             newbuttons = [('Mode: STD:', 'Mode: MANFLIGHT'), ('Wider', 'Anti'), ('Narrow', 'Clock'),
                           ('Expand', 'Slow'), ('Contract', 'Fast')]
-        else: # MANBAR
+        else:  # MANBAR
             newbuttons = [('Mode: STD:', 'Mode: MANBAR:'), ('Pause', 'Calib'), ('Expand', 'Set')]
         return newbuttons
 
@@ -517,7 +510,7 @@ class Controls(object):
                 kite.mode = 'Fig8'
             elif event == 'Contract':  # Autofly
                 # base.reset = True # don't think this ever did anything
-                kite.autofly = True if kite.autofly == False else False
+                kite.autofly = True if kite.autofly is False else False
         elif self.inputmode == 2:  # ManFlight - maybe switch to arrows - let's do this all
             if joybuttons:
                 if joybuttons[7] == 0 and joybuttons[8] == 0:
@@ -556,79 +549,109 @@ class Controls(object):
 
         return joybuttons and joybuttons[4] == 1, reset_stitcher  # quit
 
-    def keyhandler(self, key, kite, base=None):
+    def keyhandler(self, key, kite, base, control, event):
         # Relifted from old version temporarily
         # this will now support a change of flight mode and operating mode so different keys will
         # do different things depending on inputmode,
         reset_stitcher = False
-        if self.inputmode == 0:  # Standard
-            if key == ord("l"):  # left
-                self.centrex -= self.step
-            elif key == ord("r"):  # right
-                self.centrex += self.step
-            elif key == ord("u"):  # up
-                self.centrey -= self.step
-            elif key == ord("d"):  # down
-                self.centrey += self.step
-            elif key == ord("w"):  # wider
-                self.halfwidth += self.step
-            elif key == ord("n"):  # narrower
-                self.halfwidth -= 1
-            elif key == ord("e"):  # expand
-                self.radius += self.step
-            elif key == ord("c"):  # contract
-                self.radius -= self.step
-            elif key == ord("s"):  # slow
-                self.slow += 0.1
-            elif key == ord("f"):  # fast
-                self.slow = 0.0
-            elif key == ord("p"):  # pause - this may apply in all modes
-                time.sleep(10)
-            # kite.routechange = True - don't want this triggered every time
-        elif self.inputmode == 1:  # SetFlight
-            if key == ord("p"):  # park
-                kite.mode = 'Park'
-            elif key == ord("r"):  # reset stitcher
-                reset_stitcher = True
-            elif key == ord("w") and kite.zone == 'Centre':  # must be in central zone to change mode
-                kite.mode = 'Wiggle'
-            elif key == ord("f") and kite.zone == 'Centre':  # must be in central zone to change mode
-                kite.mode = 'Fig8'
-            elif key == ord("s"):  # simulation
-                self.mode = 1
-            elif key == ord("n"):  # normal with kite being present
-                self.mode = 0
-        elif self.inputmode == 2:  # ManFlight - maybe switch to arrows
-            if key == ord("l"):  # left
-                kite.x -= self.step  # this will change
-            elif key == ord("r"):  # right
-                kite.x += self.step
-            elif key == ord("u"):  # up
-                kite.y -= self.step
-            elif key == ord("d"):  # down
-                kite.y += self.step
-            elif key == ord("g"):  # bar gauche
-                base.barangle -= self.step
-            elif key == ord("h"):  # bar rigHt
-                base.barangle += self.step
-            elif key == ord("a"):  # anti clockwise
-                kite.kiteangle -= self.step
-            elif key == ord("c"):  # clockwise
-                kite.kiteangle += self.step
-            elif key == ord("p"):  # pause - this may apply in all moades
-                time.sleep(10)
+        # events for all input modes
 
-        if key == ord("m"):  # modechange
-            print(self.inputmode)
+        if event == 'Mode' or key == ord("m"):  # modechange on A key
             self.inputmode += 1
-            if self.inputmode == 3:  # simple toggle around 3 modes
+            kite.barbasedangle = True if self.inputmode == 3 else False
+            if self.inputmode == 4:  # simple toggle around 3 modes
                 self.inputmode = 0
-            self.modestring = self.getmodestring()
+            self.modestring = self.getmodestring(self.inputmode)
+            self.newbuttons = self.get_change_mode_buttons(self.inputmode)
+            base.calibrate = False  # calibration always ends on Mode Change
+        elif event == 'Pause':  # pause on 1 key
+            if control.inputmode == 3:  # Manbar Calibrate
+                base.calibrate = 'Manual'  # then slow button becomes set to set and that actions and cycles
+                base.safety = False  # if starts true
+                self.newbuttons = self.get_change_phase_buttons(base)
+            elif not control.motortest:
+                time.sleep(10)
+            else:
+                base.action = 500  # Stop
 
-        # TODO what is this doing and why calc every loop???
-        self.routepoints = calc_route(self.centrex, self.centrey, self.halfwidth, self.radius)
+        # common handling when not in one of the man modes
+        if self.inputmode == 0 or self.inputmode == 1:
+            if event == 'Left' or key == ord("l"):  # left:  # left
+                if not control.motortest:
+                    self.centrex -= self.step
+                    kite.routechange = True
+                else:
+                    base.action = 300
+            elif event == 'Right' or key == ord("r"):  # right
+                if not control.motortest:
+                    self.centrex += self.step
+                    kite.routechange = True
+                else:
+                    base.action = 400
+            elif event == 'Up' or key == ord("u"):  # up
+                if not control.motortest:
+                    self.centrey -= self.step
+                    kite.routechange = True
+                else:
+                    base.action = 100
+            elif event == 'Down' or key == ord("d"):  # down
+                if not control.motortest:
+                    self.centrey += self.step
+                    kite.routechange = True
+                else:
+                    base.action = 200
+        elif self.inputmode == 2 or self.inputmode == 3:  # common events for Man modes
+            if event == 'Left' or key == ord("l"):  # left
+                kite.x -= self.step
+            elif event == 'Right' or key == ord("r"):  # right
+                kite.x += self.step
+            elif event == 'Up' or key == ord("u"):  # up
+                kite.y -= self.step
+            elif event == 'Down' or key == ord("d"):  # down
+                kite.y += self.step
+            elif event == 'Expand' or key == ord("e"):  # slow
+                if base.calibrate != 'Manual':
+                    self.slow += 0.1
+                else:
+                    base.set_resistance(control)
+                    time.sleep(0.5)
+            elif event == 'Contract' or key == ord("c"):  # fast
+                self.slow = 0.0
 
-        return (key == ord("q"), reset_stitcher)  # quit pressed
+        if self.inputmode == 0:  # Standard
+            if event == 'Wider' or key == ord("w"):  # wider
+                self.halfwidth += self.step
+            elif event == 'Narrow' or key == ord("n"):  # narrower
+                self.halfwidth -= self.step
+            elif event == 'Expand' or key == ord("e"):  # expand
+                self.radius += self.step
+            elif event == 'Contract' or key == ord("c"):  # contract
+                self.radius -= self.step
+        elif self.inputmode == 1:  # SetFlight
+            if event == 'Wider' or key == ord("p"):  # park
+                kite.mode = 'Park'
+            elif (event == 'Narrow' or key == ord("w")) and kite.zone == 'Centre':
+                # must be in central zone to change mode
+                kite.mode = 'Wiggle'
+            elif (event == 'Expand' or key == ord("e")) and kite.zone == 'Centre':
+                # must be in central zone to change mode
+                kite.mode = 'Fig8'
+            elif event == 'Contract' or key == ord("c"):  # Autofly
+                # base.reset = True # don't think this ever did anything
+                kite.autofly = True if kite.autofly is False else False
+        elif self.inputmode == 2:  # ManFlight - maybe switch to arrows - let's do this all
+            if event == 'Wider' or key == ord("w"):  # anti clockwise
+                kite.kiteangle -= self.step
+            elif event == 'Narrow' or key == ord("n"):  # clockwise
+                kite.kiteangle += self.step
+        elif self.inputmode == 3:  # ManBar - maybe switch to arrows - let's do this all
+            if event == 'Wider' or key == ord("w"):  # anti-clockwise
+                base.action = 300
+            elif event == 'Narrow' or key == ord("n"):  # clockwise
+                base.action = 400
+            else:
+                base.action = 0
+        return key == ord("q"), reset_stitcher  # quit
 
     def mousehandler(self, kite, base, control, event=None):
         # This will hopefully remove the joystick code to allow using with mouse and less code
@@ -717,7 +740,7 @@ class Controls(object):
                 kite.mode = 'Fig8'
             elif event == 'Contract':  # Autofly
                 # base.reset = True # don't think this ever did anything
-                kite.autofly = True if kite.autofly == False else False
+                kite.autofly = True if kite.autofly is False else False
         elif self.inputmode == 2:  # ManFlight - maybe switch to arrows - let's do this all
             if event == 'Wider':  # anti clockwise
                 kite.kiteangle -= self.step

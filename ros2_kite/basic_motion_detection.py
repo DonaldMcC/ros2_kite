@@ -536,10 +536,13 @@ while True:
     if config.input == 'Keyboard':
         # change to -1 for debugging
         # 20 seems to work better than 1 on virtualbox - not sure what the issue is
+        # will keep these separate again as the keyhandler interfered with joystick before hence
+        # it got dropped - so now we will have mouse only below and keyboard + mouse where the intention is actually
+        # to use additional mouse buttons as keys via x mouse control
         key = cv2.waitKey(20) & 0xff
         if key != -1:
-            quitkey, resetH = control.keyhandler(key, kite, base)
-    else:
+            quitkey, resetH = control.keyhandler(key, kite, base, control, event)
+    else:  # mouse only
         #quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
         quitkey, resetH = control.mousehandler(kite, base, control, event)
 
