@@ -28,7 +28,7 @@ from move_func import move_item
 
 class Config(object):
     def __init__(self, source=2, kite='Standard', masklimit=10000,
-                 logging=0, numcams=1, check_motor_sim=False, setup='Standard'):
+                 logging=0, numcams=1, check_motor_sim=False, setup='Standard', input='Keyboard'):
         self.source = source
         self.kite = kite
         self.masklimit = masklimit
@@ -36,6 +36,7 @@ class Config(object):
         self.numcams = numcams
         self.check_motor_sim = check_motor_sim
         self.setup = setup
+        self.input = input
         self.writer = None
 
     @staticmethod
