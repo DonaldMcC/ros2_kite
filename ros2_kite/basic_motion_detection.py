@@ -63,7 +63,7 @@ from mainclasses import Kite, Controls, Base, Config, calc_route
 from move_func import get_angle
 from kite_funcs import kitemask, get_action, get_angles
 import PID
-from kite_logging import writelogs, writelogheader, writepictheader, closelogs
+from kite_logging import writelogheader, writepictheader, closelogs
 
 
 def drawroute(route, centrex, centrey):
@@ -276,7 +276,7 @@ masklimit = 1000
 # masklimit = 1000
 # config = 'yellowballs'  # alternative when base not present will also possibly be combo
 # KITETYPE = 'indoorkite'  # need to comment out for external
-#KITETYPE = 'kite1'
+# KITETYPE = 'kite1'
 KITETYPE = 'kite2'  # start for iphone SE video
 
 # controls setup self.inputmodes = ('Standard', 'SetFlight', 'ManFly')
@@ -286,7 +286,8 @@ KITETYPE = 'kite2'  # start for iphone SE video
 # config = Config(setup='Manfly', source=1, input='Joystick')
 config = Config(source=2, kite=args.kite,  numcams=1, check_motor_sim=True, setup=args.setup, logging=1)
 control = Controls(config.kite, step=16, motortest=args.motortest)
-kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(control.centrex, control.centrey, mode='fig8')
+kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(
+    control.centrex, control.centrey, mode='fig8')
 base = Base(kitebarratio=1, safety=True)
 print('input', control.inputmode)
 
@@ -355,7 +356,7 @@ button_list = initmodestring.split()[1:]
 sgmodestring = 'Mode: ' + initmodestring.split()[0]
 # horizontal buttons
 # buttons = [sg.Button(x, size=(7, 3), pad=(4, 0), font='Helvetica 14') for i, x in enumerate(button_list)]
-#vertical buttons
+# vertical buttons
 buttons = [[sg.Button(x, size=(7, 2), pad=(0, 1), font='Helvetica 14')] for i, x in enumerate(button_list)]
 layout = [[sg.Text(sgmodestring, key=sgmodestring, size=(10, 1), font='Helvetica 20')], buttons]
 
@@ -379,7 +380,7 @@ fps = 15
 # fps = camera.get(cv2.CV_CAP_PROP_FPS)
 
 get_angles(kite, base, control, config)
-#if use_ros2:
+# if use_ros2:
 #    joybuttons, joyaxes = get_joystick()
 time.sleep(2)
 base.start_time = round(time.monotonic() * 1000)
@@ -418,7 +419,7 @@ while True:
             break
         else:
             frame = camera
-    #print('frame', frame.shape[1],frame.shape[0])
+    # print('frame', frame.shape[1],frame.shape[0])
     height, width, channels = frame.shape
     writepictheader(config, height, width, fps)
 
@@ -500,7 +501,7 @@ while True:
     if kite.autofly:
         kite.move_kite(control, 10)
 
-    #if use_ros2 and config.check_motor_sim:
+    # if use_ros2 and config.check_motor_sim:
     #    base.mockangle = get_actmockangle(kite, base, control, config)
 
     display_stats()
@@ -515,7 +516,7 @@ while True:
         pid.update(base.barangle)
         base.action = get_action(pid.output, base.barangle)
 
-    #if use_ros2:
+    # if use_ros2:
     #    motor_msg(base.action)
     display_motor_msg(base.action, config.setup)
 
@@ -528,11 +529,11 @@ while True:
     for x in control.newbuttons:  # change the button labels if mode has change
         window[x[0]].Update(x[1])
 
-    #if use_ros2:
+    # if use_ros2:
     #    joybuttons, joyaxes = get_joystick()
-    #else:
-    joybuttons=None
-    joyaxes=None
+    # else:
+    joybuttons = None
+    joyaxes = None
     cv2.imshow('contours', frame)
 
     if config.input == 'Keyboard':
@@ -545,11 +546,10 @@ while True:
         if key != -1:
             quitkey, resetH = control.keyhandler(key, kite, base, control, event)
     else:  # mouse only
-        #quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
+        # quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
         quitkey, resetH = control.mousehandler(kite, base, control, event)
 
-
-    #added cv2.waitKey back in for ubuntu 22.04 - not clear why it was neeed but window failed to display without it
+    # added cv2.waitKey back in for ubuntu 22.04 - not clear why it was neeed but window failed to display without it
     if quitkey or event in ('Quit', None) or cv2.waitKey(1) & 0xFF == ord('q'):  # quit if controls window closed or home key
         break
 
@@ -557,7 +557,7 @@ while True:
         stitcher.cachedH = None
     counter += 1
     countertup = (counter,)
-    #writelogs(config, kite, base, control, frame, height, width, countertup)
+    # writelogs(config, kite, base, control, frame, height, width, countertup)
     time.sleep(control.slow)
 
 # Exit and clean up
