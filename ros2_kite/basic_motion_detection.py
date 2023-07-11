@@ -39,8 +39,13 @@
 #
 #
 # on playback it should be possible to go into slow motion
+# am now going to fully rove ROS2 - python serial seems to be the way to work with Arduino now
+# above caused a need to comment out all the ros2 lines so these are basically the bits that need fixed - main
+# idea is to use right and centre buttons of 3 button mouse to replace the whole joystick piece as mainly need a
+# fast flexible left and right to do different things - so joystick part needs re-written
+# other parts will be to read the bar angle and write the motor message which should both take place via new functions
+# I think and may leave the ros stuff in place for legacy purposes
 
-use_ros2=False
 
 # standard library imports
 import numpy as np
@@ -56,10 +61,6 @@ import imutils
 from move_func import get_heading_points, get_angled_corners
 from mainclasses import Kite, Controls, Base, Config, calc_route
 from move_func import get_angle
-if use_ros2:
-    from talker import motor_msg, init_motor_msg, init_ros
-    from basic_listen_barangle import listen_kiteangle, get_actmockangle
-    from listen_joystick import listen_joystick, get_joystick
 from kite_funcs import kitemask, get_action, get_angles
 import PID
 from kite_logging import writelogs, writelogheader, writepictheader, closelogs
@@ -205,8 +206,8 @@ def display_stats():
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Mode: " + str(control.config), (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Area: " + str(kite.contourarea), (10, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    if use_ros2 and len(joyaxes) > 2:
-        cv2.putText(frame, "joy:" + str(joyaxes[2]), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    #if use_ros2 and len(joyaxes) > 2:
+    #    cv2.putText(frame, "joy:" + str(joyaxes[2]), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Counter:" + str(counter), (10, 170), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     return
 
@@ -326,9 +327,10 @@ es = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
 kernel = np.ones((5, 5), np.uint8)
 background = None
 #imagemessage = KiteImage()
-if use_ros2:
-    init_ros()
-    init_motor_msg()
+# below is fine and probably no similar requirements now
+#if use_ros2:
+#    init_ros()
+#    init_motor_msg()
 
 # def test_pid(P = 1.0,  I = 0.0, D= 0.0, L=100):
 pid = PID.PID(1, 0, 0)
@@ -338,12 +340,12 @@ pid.setSampleTime(0.01)
 # and the coordinate deltas
 counter = 0
 
-if use_ros2:
-    listen_kiteangle('kiteangle')  # this then updates base.barangle via the callback function
-    if config.check_motor_sim:
-        listen_kiteangle('mockangle')  # this then subscribes to our simulation of expected movement of the bar
+#if use_ros2:
+#    listen_kiteangle('kiteangle')  # this then updates base.barangle via the callback function
+#    if config.check_motor_sim:
+#        listen_kiteangle('mockangle')  # this then subscribes to our simulation of expected movement of the bar
+#    listen_joystick()  # subscribe to joystick messages - now only option
 
-    listen_joystick()  # subscribe to joystick messages - now only option
 sg.theme('Black')  # Pysimplegui setup
 
 # below is proving clunky if we may start with any mode as the buttons names get fixed here - so if keeping this logic
@@ -377,8 +379,8 @@ fps = 15
 # fps = camera.get(cv2.CV_CAP_PROP_FPS)
 
 get_angles(kite, base, control, config)
-if use_ros2:
-    joybuttons, joyaxes = get_joystick()
+#if use_ros2:
+#    joybuttons, joyaxes = get_joystick()
 time.sleep(2)
 base.start_time = round(time.monotonic() * 1000)
 writelogheader(config, kite, base, control)
@@ -498,8 +500,8 @@ while True:
     if kite.autofly:
         kite.move_kite(control, 10)
 
-    if use_ros2 and config.check_motor_sim:
-        base.mockangle = get_actmockangle(kite, base, control, config)
+    #if use_ros2 and config.check_motor_sim:
+    #    base.mockangle = get_actmockangle(kite, base, control, config)
 
     display_stats()
     display_flight(width)
@@ -513,8 +515,8 @@ while True:
         pid.update(base.barangle)
         base.action = get_action(pid.output, base.barangle)
 
-    if use_ros2:
-        motor_msg(base.action)
+    #if use_ros2:
+    #    motor_msg(base.action)
     display_motor_msg(base.action, config.setup)
 
     cv2.imshow("contours", frame)
@@ -526,11 +528,11 @@ while True:
     for x in control.newbuttons:  # change the button labels if mode has change
         window[x[0]].Update(x[1])
 
-    if use_ros2:
-        joybuttons, joyaxes = get_joystick()
-    else:
-        joybuttons=None
-        joyaxes=None
+    #if use_ros2:
+    #    joybuttons, joyaxes = get_joystick()
+    #else:
+    joybuttons=None
+    joyaxes=None
     cv2.imshow('contours', frame)
 
     if config.input == 'Keyboard':

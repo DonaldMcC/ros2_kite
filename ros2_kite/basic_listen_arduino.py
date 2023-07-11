@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # this gets the barangle from the arduino board
-# this will be removed once basic_listen_arduino working
+# copied from basic_listen_barangle but will look to do the same via pyserial as ROS2 doesn't do serial
+# aim is to have this running and continuously displaying the resistance value from arduino when run as main
+# program - should be simple examples to do this
 
-import rospy
-from std_msgs.msg import Int16
 from kite_funcs import getangle
-
 barangle = 0
 resistance = 200
 mockresistance = 200
@@ -26,9 +25,11 @@ def callmock(data):
 
 def listen_kiteangle(message):
     if message == 'kiteangle':
-        rospy.Subscriber(message, Int16, callback, queue_size=1)
+        pass
+        #rospy.Subscriber(message, Int16, callback, queue_size=1)
     else:
-        rospy.Subscriber(message, Int16, callmock, queue_size=1)
+        pass
+        #rospy.Subscriber(message, Int16, callmock, queue_size=1)
 
 
 def get_actmockangle(kite, base, control, config):
@@ -51,6 +52,6 @@ def get_barangle(kite, base, control, config):
 
 
 if __name__ == '__main__':
-    rospy.init_node('kite_main', anonymous=False)
+    #rospy.init_node('kite_main', anonymous=False)
     listen_kiteangle('kiteangle')
-    rospy.spin()
+    #rospy.spin()

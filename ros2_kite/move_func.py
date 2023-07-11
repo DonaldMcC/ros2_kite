@@ -62,8 +62,6 @@ def get_angle(box, dx=0, dy=0, mindist=2):
 
     orderbox = order_points(box)
     # we want the angle of the short side of the rectangle
-    # print distance(orderbox[3], orderbox[0])
-    # print distance(orderbox[1], orderbox[0])
 
     if distance(orderbox[0], orderbox[1]) < distance(orderbox[1], orderbox[2]):
         # build unitvect for short side of the rectangle

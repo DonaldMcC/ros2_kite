@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 # from ros wiki for initial testing
+# this will also go once arduino up and running
+
 import rclpy
 from rclpy.node import Node
 from time import sleep
