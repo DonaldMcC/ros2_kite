@@ -1,22 +1,16 @@
 # Importing Libraries
 # This proves two way comms between arduino and python - arduino adds 1 to the number you send it
-# will require a sketch on arduino to use pySerial or alternatively the firmata sketch if using pyfirmata
+# will require a sketch on arduino that does the increment
+# possibly look at pySerialTransfer and SerialTransfer.h
+#  - this looks simple https://linuxhint.com/serial-read-serial-write-function-arduino/
+# might be buffering to consider and read rather than readline may work better
+# not sure I can do a lot more with this until got board back
 
 import serial
 from time import sleep
-import pyfirmata
 
-use_firmata = False
-if use_firmata:
-    port = 'COM5'
-    board = pyfirmata.Arduino(port)
-    it = pyfirmata.util.Iterator(board)
-    it.start()
+board = serial.Serial(port='COM5', baudrate=115200, timeout=.1)
 
-    # Define pins
-
-else:
-    board = serial.Serial(port='COM5', baudrate=115200, timeout=.1)
 
 def write_read(x):
     board.write(bytes(x, 'utf-8'))
@@ -26,6 +20,6 @@ def write_read(x):
 
 
 while True:
-    num = input("Enter a number: ") # Taking input from user
+    num = input("Enter a number: ")  # Taking input from user
     value = write_read(num)
-    print(value) # printing the value
+    print(value)  # printing the value
