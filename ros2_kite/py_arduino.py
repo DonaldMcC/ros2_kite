@@ -1,6 +1,6 @@
 import serial
 import time
-serialport = serial.Serial(port='', baudrate=115200, timeout=0, rtscts=True)
+serialport = serial.Serial
 
 startmarker = '<'
 endmarker = '>'

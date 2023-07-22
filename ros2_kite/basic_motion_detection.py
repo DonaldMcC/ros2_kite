@@ -57,13 +57,13 @@ import argparse
 from imutils.video import VideoStream
 from panorama import Stitcher
 import imutils
-# kite_ros imports
 from move_func import get_heading_points, get_angled_corners
 from mainclasses import Kite, Controls, Base, Config, calc_route
 from move_func import get_angle
 from kite_funcs import kitemask, get_action, get_angles
 import PID
 from kite_logging import writelogheader, writepictheader, closelogs
+from py_arduino import setup_serial
 
 
 def drawroute(route, centrex, centrey):
@@ -206,8 +206,6 @@ def display_stats():
                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Mode: " + str(control.config), (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Area: " + str(kite.contourarea), (10, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    #if use_ros2 and len(joyaxes) > 2:
-    #    cv2.putText(frame, "joy:" + str(joyaxes[2]), (10, 150), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     cv2.putText(frame, "Counter:" + str(counter), (10, 170), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     return
 
@@ -249,7 +247,7 @@ def present_calibrate_row(row):
            f'T_Resist: {row[3]} A_Resist: {row[4]} {row[5]} Cycles: {row[6]} {row[7]} '
 
 
-def mouse_events(event,x,y,flags,param):
+def mouse_events(event, x, y, flags,param):
     if(event == cv2.EVENT_LBUTTONDOWN):
         print('leftclick')
 
@@ -284,6 +282,7 @@ KITETYPE = 'kite2'  # start for iphone SE video
 
 # initiate class instances
 # config = Config(setup='Manfly', source=1, input='Joystick')
+setup_serial(115200, "COM5")
 config = Config(source=2, kite=args.kite,  numcams=1, check_motor_sim=True, setup=args.setup, logging=1)
 control = Controls(config.kite, step=16, motortest=args.motortest)
 kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(

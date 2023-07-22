@@ -6,6 +6,8 @@ import rospy
 from std_msgs.msg import Int16
 from kite_funcs import getangle
 
+
+
 barangle = 0
 resistance = 200
 mockresistance = 200
