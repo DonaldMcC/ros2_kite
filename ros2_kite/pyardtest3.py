@@ -1,76 +1,75 @@
 import serial
 import time
-serialPort = None
+serialport = serial.Serial(port='', baudrate=115200, timeout=0, rtscts=True)
 
-startMarker = '<'
-endMarker = '>'
-dataStarted = False
-dataBuf = ""
-messageComplete = False
+startmarker = '<'
+endmarker = '>'
+datastarted = False
+databuf = ""
+messagecomplete = False
 
 
 # the functions
-def setupSerial(baudRate, serialPortName):
-    global serialPort
-    serialPort = serial.Serial(port=serialPortName, baudrate=baudRate, timeout=0, rtscts=True)
-    print("Serial port " + serialPortName + " opened  Baudrate " + str(baudRate))
-    waitForArduino()
+def setup_serial(baudrate, serialportname):
+    global serialport
+    serialport = serial.Serial(port=serialportname, baudrate=baudrate, timeout=0, rtscts=True)
+    print("Serial port " + serialportname + " opened  Baudrate " + str(baudrate))
+    wait_arduino()
 
 
-def sendToArduino(stringToSend):
+def send_arduino(string_send):
     # this adds the start- and end-markers before sending
-    global startMarker, endMarker, serialPort
-    stringWithMarkers = startMarker
-    stringWithMarkers += stringToSend
-    stringWithMarkers += endMarker
-    serialPort.write(stringWithMarkers.encode('utf-8'))  # encode needed for Python3
+    global startmarker, endmarker, serialport
+    stringwithmarkers = startmarker + string_send + endmarker
+    serialport.write(stringwithmarkers.encode('utf-8'))  # encode needed for Python3
     return
 
 
-def recvLikeArduino():
-    global startMarker, endMarker, serialPort, dataStarted, dataBuf, messageComplete
-    if serialPort.inWaiting() > 0 and messageComplete is False:
-        x = serialPort.read().decode("utf-8")  # decode needed for Python3
-        if dataStarted is True:
-            if x != endMarker:
-                dataBuf = dataBuf + x
+def recv_arduino():
+    global startmarker, endmarker, serialport, datastarted, databuf, messagecomplete
+    if serialport.inWaiting() > 0 and messagecomplete is False:
+        x = serialport.read().decode("utf-8")  # decode needed for Python3
+        if datastarted is True:
+            if x != endmarker:
+                databuf = databuf + x
             else:
-                dataStarted = False
-                messageComplete = True
-        elif x == startMarker:
-            dataBuf = ''
-            dataStarted = True
+                datastarted = False
+                messagecomplete = True
+        elif x == startmarker:
+            databuf = ''
+            datastarted = True
 
-    if messageComplete is True:
-        messageComplete = False
-        return dataBuf
+    if messagecomplete is True:
+        messagecomplete = False
+        return databuf
     else:
         return "XXX"
 
 
-def waitForArduino():
+def wait_arduino():
     # wait until the Arduino sends 'Arduino is ready' - allows time for Arduino reset
     # it also ensures that any bytes left over from a previous message are discarded
     print("Waiting for Arduino to reset")
     msg = ""
     while msg.find("Arduino is ready") == -1:
-        msg = recvLikeArduino()
+        msg = recv_arduino()
         if not (msg == 'XXX'):
             print(msg)
 
 
-# the program
-setupSerial(115200, "COM5")
-count = 0
-prevTime = time.time()
-while True:
-    # check for a reply
-    arduinoReply = recvLikeArduino()
-    if not (arduinoReply == 'XXX'):
-        print("Time %s  Reply %s" % (time.time(), arduinoReply))
+if __name__ == "__main__":
+    # the program
+    setup_serial(115200, "COM5")
+    count = 0
+    prevTime = time.time()
+    while True:
+        # check for a reply
+        arduinoReply = recv_arduino()
+        if not (arduinoReply == 'XXX'):
+            print("Time %s  Reply %s" % (time.time(), arduinoReply))
 
-        # send a message at intervals
-    if time.time() - prevTime > 1.0:
-        sendToArduino("this is a test " + str(count))
-        prevTime = time.time()
-        count += 1
+            # send a message at intervals
+        if time.time() - prevTime > 1.0:
+            send_arduino("this is a test " + str(count))
+            prevTime = time.time()
+            count += 1
