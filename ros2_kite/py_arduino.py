@@ -12,9 +12,13 @@ messagecomplete = False
 # the functions
 def setup_serial(baudrate, serialportname):
     global serialport
-    serialport = serial.Serial(port=serialportname, baudrate=baudrate, timeout=0, rtscts=True)
-    print("Serial port " + serialportname + " opened  Baudrate " + str(baudrate))
-    wait_arduino()
+    try:
+        serialport = serial.Serial(port=serialportname, baudrate=baudrate, timeout=0, rtscts=True)
+        print("Serial port " + serialportname + " opened  Baudrate " + str(baudrate))
+        wait_arduino()
+    except serial.serialutil.SerialException:
+        print('Error occurred on Serial Port Setup')
+    return
 
 
 def send_arduino(string_send):
