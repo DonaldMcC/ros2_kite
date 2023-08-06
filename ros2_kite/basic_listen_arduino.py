@@ -6,7 +6,17 @@
 # So think we will use this as template for multi-processing in similar manner to how basic_motion_detection will
 # https://docs.python.org/3/library/multiprocessing.html but most likely now just want a function there to
 # read the angle and send the motor message - both will be integer
+# https://www.instructables.com/Python-Serial-Port-Communication-Between-PC-and-Ar/
+# https://realpython.com/arduino-python/
+# https://hiteshmishra708.medium.com/multiprocessing-in-python-c6735fa70f3f
+# https://www.instructables.com/Python-Serial-Port-Communication-Between-PC-and-Ar/
 
+# below seems to be 3 key examples - think we start with first one - non threaded first
+# https://forum.arduino.cc/t/demo-of-pc-arduino-comms-using-python/219184/5#msg1810764
+# https://github.com/headrotor/Python-Arduino-example/blob/master/HW_Thread_py36.py threading approach
+# https://github.com/pyserial/pyserial/issues/216
+
+#TODO need to work through above links and then figure out an initial approach - suggest bottom up
 from multiprocessing import Process, Value, Array
 from kite_funcs import getangle
 
