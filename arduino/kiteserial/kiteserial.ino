@@ -37,7 +37,7 @@ int sensormax;
 int safetycycle = 2000; // amount the resistor should move in period - if less motors stop until direction changes
 int storedirection;
 int prevsensor = 0;
-unsigned int motormsg
+unsigned int motormsg;
 
 int pinI1=8;//define I1 interface
 int pinI2=11;//define I2 interface
@@ -204,49 +204,6 @@ void stop()//
 }
 
 
-void callback ()
-{
-int speed = 255;
-int rawspeed;
-int direction=0; //direction of motors
-direction = int_msg.data / 100;
-rawspeed = int_msg.data % 100;
-if (rawspeed > 0) {
-speed = int((rawspeed * 255) / 100);
-}
-else {
-  speed = 255;
-};
-
-currdirection = direction;
-
-if (safetystop == false) {
-switch (direction) {
-    case 1:
-      backward(speed);
-      break;
-    case 2:
-      forward(speed);
-      break;
-    case 3:
-      left(speed);
-      break;
-    case 4:
-      right(speed);
-      break;
-    case 6:
-      leftonly(speed);
-      break;
-    case 7:
-      rightonly(speed);
-      break;
-    default:
-        stop();
-    break;
-  }
-}
-}
-
 
 void loop()
 {
@@ -376,7 +333,6 @@ void replyToPC() {
     Serial.print(" SrvFrac ");
     Serial.print(servoFraction);
     Serial.print(" SrvPos ");
-    Serial.print(newServoPos);
     Serial.print(" Time ");
     Serial.print(curMillis >> 9); // divide by 512 is approx = half-seconds
     Serial.println(">");
