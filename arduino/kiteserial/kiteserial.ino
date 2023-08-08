@@ -68,8 +68,6 @@ boolean readInProgress = false;
 boolean newDataFromPC = false;
 
 char messageFromPC[buffSize] = {0};
-int newFlashInterval = 0;
-float servoFraction = 0.0; // fraction of servo range to move
 
 unsigned long curMillis;
 unsigned long prevReplyToPCmillis = 0;
@@ -271,9 +269,7 @@ void loop()
 
 
 void getDataFromPC() {
-
     // receive data from PC and save it into inputBuffer
-
   if(Serial.available() > 0) {
     char x = Serial.read();
       // the order of these IF clauses is significant
@@ -303,22 +299,14 @@ void getDataFromPC() {
 //=============
 
 void parseData() {
-
     // split the data into its parts
-
   char * strtokIndx; // this is used by strtok() as an index
-
   strtokIndx = strtok(inputBuffer,",");      // get the first part - the string
   strcpy(messageFromPC, strtokIndx); // copy it to messageFromPC
 
   strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
-  newFlashInterval = atoi(strtokIndx);     // convert this part to an integer
-
-  strtokIndx = strtok(NULL, ",");
-  servoFraction = atof(strtokIndx);     // convert this part to a float
-
+  motormsg = atoi(strtokIndx);     // convert this part to an integer
 }
-
 //=============
 
 void replyToPC() {
@@ -328,11 +316,10 @@ void replyToPC() {
     newDataFromPC = false;
     Serial.print("<Msg ");
     Serial.print(messageFromPC);
-    Serial.print(" NewFlash ");
-    Serial.print(newFlashInterval);
-    Serial.print(" SrvFrac ");
-    Serial.print(servoFraction);
-    Serial.print(" SrvPos ");
+    Serial.print(" Sensor ");
+    Serial.print(sensorValue);
+    Serial.print(" Motor ");
+    Serial.print(motormsg);
     Serial.print(" Time ");
     Serial.print(curMillis >> 9); // divide by 512 is approx = half-seconds
     Serial.println(">");
