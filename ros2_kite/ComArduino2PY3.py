@@ -55,11 +55,11 @@ import time
 #  Function Definitions
 # =====================================
 
+
 def sendToArduino(sendStr):
     ser.write(sendStr.encode('utf-8'))  # change for Python3
 
 
-#======================================
 def recvFromArduino():
     global startMarker, endMarker
     ck = ""
@@ -79,7 +79,6 @@ def recvFromArduino():
     return ck
 
 
-# ============================
 def waitForArduino():
     # wait until the Arduino sends 'Arduino Ready' - allows time for Arduino reset
     # it also ensures that any bytes left over from a previous message are discarded
@@ -93,7 +92,6 @@ def waitForArduino():
         print()
 
 
-# ======================================
 def runTest(td):
     numLoops = len(td)
     waitingForReply = False
@@ -114,7 +112,7 @@ def runTest(td):
             n += 1
             waitingForReply = False
             print ("===========")
-        time.sleep(5)
+        time.sleep(1)
 
 
 # ======================================
@@ -136,12 +134,12 @@ endMarker = 62
 waitForArduino()
 
 testData = []
-testData.append("<Motor, 100>")
-testData.append("<Motor, 200>")
-testData.append("<Motor, 300>")
-testData.append("<Motor, 400>")
-testData.append("<Motor, 500>")
-testData.append("<Motor, 600>")
+testData.append("<M, 100>")
+testData.append("<M, 200>")
+testData.append("<M, 300>")
+testData.append("<M, 400>")
+testData.append("<M, 500>")
+testData.append("<M, 600>")
 
 runTest(testData)
 ser.close()

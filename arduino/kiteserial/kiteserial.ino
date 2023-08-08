@@ -37,7 +37,7 @@ int sensormax;
 int safetycycle = 2000; // amount the resistor should move in period - if less motors stop until direction changes
 int storedirection;
 int prevsensor = 0;
-unsigned int motormsg;
+unsigned int motormsg = 0;
 
 int pinI1=8;//define I1 interface
 int pinI2=11;//define I2 interface
@@ -68,7 +68,6 @@ boolean readInProgress = false;
 boolean newDataFromPC = false;
 
 char messageFromPC[buffSize] = {0};
-
 unsigned long curMillis;
 unsigned long prevReplyToPCmillis = 0;
 unsigned long replyToPCinterval = 1000;
@@ -81,9 +80,9 @@ unsigned long replyToPCinterval = 1000;
 
 void callback()
 {
-int speed = 255;
+int speed;
 int rawspeed;
-int direction=0; //direction of motors
+int direction; //direction of motors
 direction = motormsg / 100;
 rawspeed = motormsg % 100;
 if (rawspeed > 0) {
@@ -134,7 +133,6 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(57600);
   delay(500); // delay() is OK in setup as it only happens once
-  // tell the PC we are ready
   Serial.println("<Arduino is ready>");
 }
 
@@ -202,7 +200,6 @@ void stop()//
 }
 
 
-
 void loop()
 {
   curMillis = millis();
@@ -245,7 +242,7 @@ void loop()
             stop();
           }
       } else {
-        //update max and min cumulation was unreliable
+        // update max and min cumulation was unreliable
         if (sensorValue > sensormax) {
           sensormax = sensorValue;
         }
@@ -296,7 +293,6 @@ void getDataFromPC() {
   }
 }
 
-//=============
 
 void parseData() {
     // split the data into its parts
@@ -307,7 +303,7 @@ void parseData() {
   strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
   motormsg = atoi(strtokIndx);     // convert this part to an integer
 }
-//=============
+
 
 void replyToPC() {
   sensorValue = analogRead(sensorPin);
@@ -315,7 +311,7 @@ void replyToPC() {
   if (newDataFromPC) {
     newDataFromPC = false;
     Serial.print("<Msg ");
-    Serial.print(messageFromPC);
+    Serial.print(motormsg);
     Serial.print(" Sensor ");
     Serial.print(sensorValue);
     Serial.print(" Motor ");
