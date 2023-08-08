@@ -2,7 +2,6 @@
 # 08 Dec 2016 - updated for Python3
 
 # in case any of this upsets Python purists it has been converted from an equivalent JRuby program
-
 # this is designed to work with ... ArduinoPC2.ino ...
 
 # the purpose of this program and the associated Arduino program is to demonstrate a system for sending 
@@ -49,34 +48,38 @@
 #               ser = serial.Serial(serPort, baudRate)
 #
 
-#=====================================
+import serial
+import time
+
+# =====================================
 #  Function Definitions
-#=====================================
+# =====================================
 
 def sendToArduino(sendStr):
-    ser.write(sendStr.encode('utf-8')) # change for Python3
+    ser.write(sendStr.encode('utf-8'))  # change for Python3
 
 
 #======================================
 def recvFromArduino():
     global startMarker, endMarker
     ck = ""
-    x = "z" # any value that is not an end- or startMarker
-    byteCount = -1 # to allow for the fact that the last increment will be one too many
+    x = "z"  # any value that is not an end- or startMarker
+    byteCount = -1  # to allow for the fact that the last increment will be one too many
     
     # wait for the start character
-    while  ord(x) != startMarker: 
+    while ord(x) != startMarker:
         x = ser.read()
     
     # save data until the end marker is found
     while ord(x) != endMarker:
         if ord(x) != startMarker:
-            ck = ck + x.decode("utf-8") # change for Python3
+            ck = ck + x.decode("utf-8")  # change for Python3
             byteCount += 1
         x = ser.read()
-    return(ck)
+    return ck
 
-#============================
+
+# ============================
 def waitForArduino():
     # wait until the Arduino sends 'Arduino Ready' - allows time for Arduino reset
     # it also ensures that any bytes left over from a previous message are discarded
@@ -86,11 +89,11 @@ def waitForArduino():
         while ser.inWaiting() == 0:
             pass
         msg = recvFromArduino()
-        print (msg) # python3 requires parenthesis
-        print ()
-        
-#======================================
+        print(msg)  # python3 requires parenthesis
+        print()
 
+
+# ======================================
 def runTest(td):
     numLoops = len(td)
     waitingForReply = False
@@ -98,12 +101,12 @@ def runTest(td):
     n = 0
     while n < numLoops:
         teststr = td[n]
-        if waitingForReply == False:
+        if waitingForReply is False:
             sendToArduino(teststr)
-            print ("Sent from PC -- LOOP NUM " + str(n) + " TEST STR " + teststr)
+            print("Sent from PC -- LOOP NUM " + str(n) + " TEST STR " + teststr)
             waitingForReply = True
 
-        if waitingForReply == True:
+        if waitingForReply is True:
             while ser.inWaiting() == 0:
                 pass
             dataRecvd = recvFromArduino()
@@ -113,22 +116,19 @@ def runTest(td):
             print ("===========")
         time.sleep(5)
 
-#======================================
+
+# ======================================
 # THE DEMO PROGRAM STARTS HERE
-#======================================
-
-import serial
-import time
-
-print ()
-print ()
+# ======================================
+print()
+print()
 
 # NOTE the user must ensure that the serial port and baudrate are correct
 # serPort = "/dev/ttyS80"
 serPort = "COM5"
 baudRate = 57600
 ser = serial.Serial(serPort, baudRate)
-print ("Serial port " + serPort + " opened  Baudrate " + str(baudRate))
+print("Serial port " + serPort + " opened  Baudrate " + str(baudRate))
 
 startMarker = 60
 endMarker = 62
@@ -144,5 +144,4 @@ testData.append("<Motor, 500>")
 testData.append("<Motor, 600>")
 
 runTest(testData)
-ser.close
-
+ser.close()
