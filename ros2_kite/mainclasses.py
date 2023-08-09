@@ -22,7 +22,7 @@ This file should do the following things
 import time
 import math
 from collections import deque
-from kite_funcs import getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre
+from kite_funcs import getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre, getangle
 from move_func import move_item
 
 
@@ -158,6 +158,16 @@ class Base(object):
               + ' ' + str(self.resistcentre) + ' ' + str(self.resistright))
         # if self.manual_calib_phase < 2 else 0
         control.newbuttons = control.get_change_phase_buttons(self)
+        return
+
+    # this should always return barangle except when barangle being set from the kite for simulation
+    # or on manbar when bar should be freely controlled
+    def get_barangle(self, kite, config, resistance):
+        if config.setup == 'KiteBarActual':
+            self.barangle = kite.kiteangle / self.kitebarratio
+        else:  # automated flight reading from some sort of sensor via ROS
+            self.barangle = getangle(resistance, self.maxleft, self.maxright,
+                                     self.resistleft, self.resistright, self.resistcentre)
         return
 
 

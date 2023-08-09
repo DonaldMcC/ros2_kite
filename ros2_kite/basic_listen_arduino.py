@@ -16,8 +16,9 @@
 # https://github.com/headrotor/Python-Arduino-example/blob/master/HW_Thread_py36.py threading approach
 # https://github.com/pyserial/pyserial/issues/216
 
-#TODO need to work through above links and then figure out an initial approach - suggest bottom up
-from multiprocessing import Process, Value, Array
+# TODO need to work through above links and then figure out an initial approach - suggest bottom up
+# Not really convinced this is required going forward - will move to ComArduino2PY3 for now
+# including moving the
 from kite_funcs import getangle
 
 barangle = 0
@@ -56,7 +57,8 @@ def get_actmockangle(kite, base, control, config):
 
 # this should always return barangle except when barangle being set from the kite for simulation
 # or on manbar when bar should be freely controlled
-def get_barangle(kite, base, control, config):
+# This has been moved to Method of Base
+def nolonger_get_barangle(kite, base, control, config):
     global barangle, resistance
     if config.setup == 'KiteBarActual':
         return kite.kiteangle / base.kitebarratio

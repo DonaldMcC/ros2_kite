@@ -130,6 +130,12 @@ def runtest(td, serial_conn):
             print("===========")
         time.sleep(1)
 
+#Think this does a single cycle - but now rather concerned that this will need to cycle with arduino
+#hopefully if we send and then receive once the sending can trigger and only aim for 1 message per cycle in sync
+#with option to process more cycles if required
+def call_arduino(serial_conn, motormsg: int, textback: str):
+    pass
+
 
 # ======================================
 # THE DEMO PROGRAM STARTS HERE
