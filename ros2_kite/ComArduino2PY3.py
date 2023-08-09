@@ -51,67 +51,83 @@
 import serial
 import time
 
+startmarker = 60
+endmarker = 62
+
 # =====================================
 #  Function Definitions
 # =====================================
 
 
-def sendToArduino(sendStr):
-    ser.write(sendStr.encode('utf-8'))  # change for Python3
+def init_arduino(serport='COM5', baudrate=57600):
+    # NOTE the user must ensure that the serial port and baudrate are correct
+    # serPort = "/dev/ttyS80"
+    ser = serial.Serial(serport, baudrate)
+    print("Serial port " + serport + " opened  Baudrate " + str(baudrate))
+    wait_for_arduino(ser)
+    return ser
 
 
-def recvFromArduino():
-    global startMarker, endMarker
+def close_arduino(serial_conn):
+    serial_conn.close()
+
+
+def send_to_arduino(sendstr, serial_conn):
+    serial_conn.write(sendstr.encode('utf-8'))  # change for Python3
+
+
+def recv_from_arduino(serial_conn):
+    global startmarker, endmarker
     ck = ""
     x = "z"  # any value that is not an end- or startMarker
-    byteCount = -1  # to allow for the fact that the last increment will be one too many
+    bytecount = -1  # to allow for the fact that the last increment will be one too many
     
     # wait for the start character
-    while ord(x) != startMarker:
-        x = ser.read()
+    while ord(x) != startmarker:
+        x = serial_conn.read()
     
     # save data until the end marker is found
-    while ord(x) != endMarker:
-        if ord(x) != startMarker:
+    while ord(x) != endmarker:
+        if ord(x) != startmarker:
             ck = ck + x.decode("utf-8")  # change for Python3
-            byteCount += 1
-        x = ser.read()
+            bytecount += 1
+        x = serial_conn.read()
     return ck
 
 
-def waitForArduino():
+def wait_for_arduino(serial_conn):
     # wait until the Arduino sends 'Arduino Ready' - allows time for Arduino reset
     # it also ensures that any bytes left over from a previous message are discarded
-    global startMarker, endMarker
+    global startmarker, endmarker
     msg = ""
     while msg.find("Arduino is ready") == -1:
-        while ser.inWaiting() == 0:
+        while serial_conn.inWaiting() == 0:
             pass
-        msg = recvFromArduino()
+        msg = recv_from_arduino(serial_conn)
         print(msg)  # python3 requires parenthesis
         print()
 
 
-def runTest(td):
-    numLoops = len(td)
-    waitingForReply = False
+def runtest(td, serial_conn):
+    numloops = len(td)
+    waiting_for_reply = False
 
     n = 0
-    while n < numLoops:
+    while n < numloops:
         teststr = td[n]
-        if waitingForReply is False:
-            sendToArduino(teststr)
+        if waiting_for_reply is False:
+            send_to_arduino(teststr, serial_conn)
             print("Sent from PC -- LOOP NUM " + str(n) + " TEST STR " + teststr)
-            waitingForReply = True
+            waiting_for_reply = True
 
-        if waitingForReply is True:
-            while ser.inWaiting() == 0:
+        if waiting_for_reply is True:
+            while serial_conn.inWaiting() == 0:
                 pass
-            dataRecvd = recvFromArduino()
-            print ("Reply Received  " + dataRecvd)
+            datarecvd = recv_from_arduino(serial_conn)
+            print("Reply Received  " + datarecvd)
             n += 1
-            waitingForReply = False
-            print ("===========")
+            waiting_for_reply = False
+            print("===========")
         time.sleep(1)
 
 
@@ -123,23 +139,8 @@ print()
 
 # NOTE the user must ensure that the serial port and baudrate are correct
 # serPort = "/dev/ttyS80"
-serPort = "COM5"
-baudRate = 57600
-ser = serial.Serial(serPort, baudRate)
-print("Serial port " + serPort + " opened  Baudrate " + str(baudRate))
-
-startMarker = 60
-endMarker = 62
-
-waitForArduino()
-
-testData = []
-testData.append("<M, 100>")
-testData.append("<M, 200>")
-testData.append("<M, 300>")
-testData.append("<M, 400>")
-testData.append("<M, 500>")
-testData.append("<M, 600>")
-
-runTest(testData)
-ser.close()
+sp = init_arduino()
+wait_for_arduino(sp)
+testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
+runtest(testdata, sp)
+sp.close()
