@@ -46,7 +46,11 @@
 #               serPort = "/dev/ttyS80"
 #               baudRate = 9600
 #               ser = serial.Serial(serPort, baudRate)
-#
+# So appears this already works the way I want it in that you need to send 
+# something in order to receive answer back
+# we already moved get barangle to method of base so now need to look at how
+# send motor_msg worked but this should be simple enought and 
+
 
 import serial
 import time
@@ -108,7 +112,7 @@ def wait_for_arduino(serial_conn):
         print()
 
 
-def runtest(td, serial_conn):
+def runtest(td, serial_conn, sleep=1):
     numloops = len(td)
     waiting_for_reply = False
 
@@ -128,7 +132,7 @@ def runtest(td, serial_conn):
             n += 1
             waiting_for_reply = False
             print("===========")
-        time.sleep(1)
+        time.sleep(sleep)
 
 #Think this does a single cycle - but now rather concerned that this will need to cycle with arduino
 #hopefully if we send and then receive once the sending can trigger and only aim for 1 message per cycle in sync
