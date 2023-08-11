@@ -110,9 +110,22 @@ def wait_for_arduino(serial_conn):
         msg = recv_from_arduino(serial_conn)
         print(msg)  # python3 requires parenthesis
         print()
+    return
+
+def send_motor_get_barangle(msg: int, serial_conn):
+    send_to_arduino(f'<{msg}>', serial_conn)
+    print('sent')
+    while serial_conn.inWaiting() == 0:
+        pass
+    datarecvd = recv_from_arduino(serial_conn)
+    print("Reply Received  " + datarecvd)
+    #TODO - strip final message
+    barangle = 100
+    return barangle
 
 
 def runtest(td, serial_conn, sleep=1):
+    print('running')
     numloops = len(td)
     waiting_for_reply = False
 
@@ -144,13 +157,16 @@ def call_arduino(serial_conn, motormsg: int, textback: str):
 # ======================================
 # THE DEMO PROGRAM STARTS HERE
 # ======================================
-print()
-print()
+if __name__ == "__main__":
+    print()
+    print()
 
-# NOTE the user must ensure that the serial port and baudrate are correct
-# serPort = "/dev/ttyS80"
-sp = init_arduino()
-wait_for_arduino(sp)
-testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
-runtest(testdata, sp)
-sp.close()
+    # NOTE the user must ensure that the serial port and baudrate are correct
+    # serPort = "/dev/ttyS80"
+    sp = init_arduino()
+    print('back')
+    testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
+    runtest(testdata, sp, 0)
+    bar = send_motor_get_barangle(120, sp)
+    print(bar)
+    sp.close()

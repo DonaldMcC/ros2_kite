@@ -1,0 +1,8 @@
+pytest
+setuptools
+numpy
+scipy
+opencv-python
+imutils
+pyserial
+PySimpleGUI

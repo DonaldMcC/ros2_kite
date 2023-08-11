@@ -63,7 +63,7 @@ from move_func import get_angle
 from kite_funcs import kitemask, get_action, get_angles
 import PID
 from kite_logging import writelogheader, writepictheader, closelogs
-from py_arduino import setup_serial
+from ComArduino2PY3 import init_arduino, send_motor_get_barangle
 
 
 def drawroute(route, centrex, centrey):
@@ -282,13 +282,13 @@ KITETYPE = 'kite2'  # start for iphone SE video
 
 # initiate class instances
 # config = Config(setup='Manfly', source=1, input='Joystick')
-setup_serial(115200, "COM5")
 config = Config(source=2, kite=args.kite,  numcams=1, check_motor_sim=True, setup=args.setup, logging=1)
 control = Controls(config.kite, step=16, motortest=args.motortest)
 kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(
     control.centrex, control.centrey, mode='fig8')
 base = Base(kitebarratio=1, safety=True)
 print('input', control.inputmode)
+serial_conn = init_arduino("COM5", 57600)
 
 while config.source not in {1, 2}:
     config.source = input('Key 1 for camera or 2 for source')
@@ -314,7 +314,7 @@ else:
     print('I am 2')
     # TODO at some point will change this to current directory and append file - not urgent
     # camera = cv2.VideoCapture(r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4')
-    camera = cv2.VideoCapture(r'd:/dev/workspace/src/ros2_kite/ros2_kite/choppedkite_horizshort.mp4')
+    camera = cv2.VideoCapture(r'c:/pyproj/ros2_kite/ros2_kite/choppedkite_horizshort.mp4')
     #camera = cv2.VideoCapture(r'/home/ubuntu/catkin_ws/src/kite_ros/scripts/2020_test1.mp4')
     # Videostream seems to create errors with playback
     # camera = VideoStream(src=r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4').start()
@@ -327,10 +327,6 @@ es = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
 kernel = np.ones((5, 5), np.uint8)
 background = None
 #imagemessage = KiteImage()
-# below is fine and probably no similar requirements now
-#if use_ros2:
-#    init_ros()
-#    init_motor_msg()
 
 # def test_pid(P = 1.0,  I = 0.0, D= 0.0, L=100):
 pid = PID.PID(1, 0, 0)
@@ -344,7 +340,6 @@ counter = 0
 #    listen_kiteangle('kiteangle')  # this then updates base.barangle via the callback function
 #    if config.check_motor_sim:
 #        listen_kiteangle('mockangle')  # this then subscribes to our simulation of expected movement of the bar
-#    listen_joystick()  # subscribe to joystick messages - now only option
 
 sg.theme('Black')  # Pysimplegui setup
 
@@ -379,8 +374,6 @@ fps = 15
 # fps = camera.get(cv2.CV_CAP_PROP_FPS)
 
 get_angles(kite, base, control, config)
-# if use_ros2:
-#    joybuttons, joyaxes = get_joystick()
 time.sleep(2)
 base.start_time = round(time.monotonic() * 1000)
 writelogheader(config, kite, base, control)
@@ -511,12 +504,13 @@ while True:
     doaction = True if control.motortest or base.calibrate or control.inputmode == 3 else False
 
     if not doaction:
+        #TODO Look at what this doaction stuff is all about
         pid.SetPoint = base.targetbarangle
         pid.update(base.barangle)
         base.action = get_action(pid.output, base.barangle)
 
-    # if use_ros2:
-    #    motor_msg(base.action)
+    # send the action to arduino and get barangle back
+    base.barangle = send_motor_get_barangle(base.action, serial_conn)
     display_motor_msg(base.action, config.setup)
 
     cv2.imshow("contours", frame)
@@ -528,9 +522,6 @@ while True:
     for x in control.newbuttons:  # change the button labels if mode has change
         window[x[0]].Update(x[1])
 
-    # if use_ros2:
-    #    joybuttons, joyaxes = get_joystick()
-    # else:
     joybuttons = None
     joyaxes = None
     cv2.imshow('contours', frame)
