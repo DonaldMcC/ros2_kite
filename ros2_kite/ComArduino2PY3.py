@@ -66,9 +66,12 @@ endmarker = 62
 def init_arduino(serport='COM5', baudrate=57600):
     # NOTE the user must ensure that the serial port and baudrate are correct
     # serPort = "/dev/ttyS80"
-    ser = serial.Serial(serport, baudrate)
+    try:
+        ser = serial.Serial(serport, baudrate)
+        wait_for_arduino(ser)
+    except serial.serialutil.SerialException as e:
+        ser = None
     print("Serial port " + serport + " opened  Baudrate " + str(baudrate))
-    wait_for_arduino(ser)
     return ser
 
 
@@ -112,6 +115,7 @@ def wait_for_arduino(serial_conn):
         print()
     return
 
+
 def send_motor_get_barangle(msg: int, serial_conn):
     send_to_arduino(f'<{msg}>', serial_conn)
     print('sent')
@@ -119,7 +123,7 @@ def send_motor_get_barangle(msg: int, serial_conn):
         pass
     datarecvd = recv_from_arduino(serial_conn)
     print("Reply Received  " + datarecvd)
-    #TODO - strip final message
+    # TODO - strip final message
     barangle = 100
     return barangle
 
@@ -147,9 +151,10 @@ def runtest(td, serial_conn, sleep=1):
             print("===========")
         time.sleep(sleep)
 
-#Think this does a single cycle - but now rather concerned that this will need to cycle with arduino
-#hopefully if we send and then receive once the sending can trigger and only aim for 1 message per cycle in sync
-#with option to process more cycles if required
+
+# Think this does a single cycle - but now rather concerned that this will need to cycle with arduino
+# hopefully if we send and then receive once the sending can trigger and only aim for 1 message per cycle in sync
+# with option to process more cycles if required
 def call_arduino(serial_conn, motormsg: int, textback: str):
     pass
 

@@ -66,6 +66,8 @@ from kite_logging import writelogheader, writepictheader, closelogs
 from ComArduino2PY3 import init_arduino, send_motor_get_barangle
 
 
+# all below functions are not pure as wasn't able to pass the frame for some reason
+# TODO rework as pure functions
 def drawroute(route, centrex, centrey):
     global frame
     for k, l in enumerate(route):
@@ -288,6 +290,7 @@ kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(
     control.centrex, control.centrey, mode='fig8')
 base = Base(kitebarratio=1, safety=True)
 print('input', control.inputmode)
+
 serial_conn = init_arduino("COM5", 57600)
 
 while config.source not in {1, 2}:
@@ -378,7 +381,8 @@ time.sleep(2)
 base.start_time = round(time.monotonic() * 1000)
 writelogheader(config, kite, base, control)
 
-# Main module loop START
+# Grab Currrent Time Before Running the Code
+start = time.time()
 while True:
     if config.numcams == 1:
         if config.source == 1:
@@ -510,7 +514,10 @@ while True:
         base.action = get_action(pid.output, base.barangle)
 
     # send the action to arduino and get barangle back
-    base.barangle = send_motor_get_barangle(base.action, serial_conn)
+    # TODO this needs reworked - want to send to arduino immediately on message change
+    # most going full right or left and don't really need the barangle to determine action
+    #if counter % 15 == 0:
+    #   base.barangle = send_motor_get_barangle(base.action, serial_conn)
     display_motor_msg(base.action, config.setup)
 
     cv2.imshow("contours", frame)
@@ -552,6 +559,13 @@ while True:
 
 # Exit and clean up
 print("[INFO] cleaning up...")
+# Grab Currrent Time After Running the Code
+end = time.time()
+
+#Subtract Start Time from The End Time
+total_time = end - start
+print("\n"+ str(total_time))
+
 closelogs(config)
 cv2.destroyAllWindows()
 if config.numcams == 1:
