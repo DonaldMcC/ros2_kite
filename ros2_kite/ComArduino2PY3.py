@@ -54,6 +54,7 @@
 
 import serial
 import time
+from kite_funcs import getangle
 
 startmarker = 60
 endmarker = 62
@@ -112,21 +113,36 @@ def wait_for_arduino(serial_conn):
             pass
         msg = recv_from_arduino(serial_conn)
         print(msg)  # python3 requires parenthesis
-        print()
+        print('from wait for arduino')
     return
 
 
-def send_motor_get_barangle(msg: int, serial_conn):
-    send_to_arduino(f'<{msg}>', serial_conn)
-    print('sent')
+def get_sensor(ard_data):
+    msg = ard_data.split(' ')
+    sensor = int(msg[3])
+    return sensor
+
+
+def send_motor_get_barangle(base,  serial_conn):
+    send_to_arduino(f'<{base.action}>', serial_conn)
     while serial_conn.inWaiting() == 0:
         pass
     datarecvd = recv_from_arduino(serial_conn)
-    print("Reply Received  " + datarecvd)
-    # TODO - strip final message
-    barangle = 100
-    return barangle
+    #print("Reply Received  " + datarecvd)
+    resistance = get_sensor(datarecvd)
+    barangle = getangle(resistance, base.maxleft, base.maxright,
+                        base.resistleft, base.resistright, base.resistcentre)
+    return resistance, barangle
 
+# below to be deleted - not going to be used
+def get_barangle(kite, base, control, config, serport):
+    if config.setup == 'KiteBarActual':
+        return kite.kiteangle / base.kitebarratio
+    else:  # get resistance from arduino
+        resistance = int(recv_from_arduino(serport))
+        barangle = getangle(resistance, base.maxleft, base.maxright,
+                            base.resistleft, base.resistright, base.resistcentre)
+        return barangle
 
 def runtest(td, serial_conn, sleep=1):
     print('running')

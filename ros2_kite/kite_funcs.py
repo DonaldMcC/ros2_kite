@@ -2,17 +2,6 @@ import os
 import numpy as np
 import cv2
 #TODO - get some settings for this was in .env but that
-#not loading on windows for ROS2
-# below was for module testing only and now causing circular imports so removed temporarily
-# from ros2_kite.mainclasses import Kite, Base, Controls, setangleturn, setangle
-# from ros2_kite.mainclasses import Kite, Base, Controls
-
-use_ros2=False
-if use_ros2:
-    from ros2_kite.basic_listen_barangle import resistance, get_barangle
-else:
-    resistance=200
-    get_barangle= lambda a=0,b=1,c=2,d=3:0
 
 conmaxright=9999
 conmaxleft=0
@@ -181,7 +170,7 @@ def get_action(output, barangle):
 
     MAXLEFT = conmaxleft  # These are to try and avoid breaking the bar
     MAXRIGHT = conmaxright  # similarly to protect bar as attached close to pivot
-    TOLERANCE = 1  # degreee of tolerance
+    TOLERANCE = 1  # degree of tolerance
     action = 0
     if abs(output) < TOLERANCE:
         action = 0  # stop
