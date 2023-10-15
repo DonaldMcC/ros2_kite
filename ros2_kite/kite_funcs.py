@@ -1,13 +1,11 @@
-import os
 import numpy as np
 import cv2
-#TODO - get some settings for this was in .env but that
 
-conmaxright=9999
-conmaxleft=0
-conresistleft=9999
-conresistright=99999
-conresistcentre=0
+conmaxright = 9999
+conmaxleft = 0
+conresistleft = 9999
+conresistright = 99999
+conresistcentre = 0
 
 
 # http://www.pyimagesearch.com/2014/08/04/opencv-python-color-detection/

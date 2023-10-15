@@ -2,7 +2,7 @@
 # conversion of stuff - fairly std functions I think and generally should now work with both
 # 2 and 3D objects
 
-#note these functions were originally written to work with pygame coordinates with origin at
+# note these functions were originally written to work with pygame coordinates with origin at
 # bottom left - this setup is now using opencv where origin is top left and I want 0 degrees
 # to be straight up and 90 degrees being 3 o clock so some checking of this is required
 # opencv_coords introduced to support this
@@ -135,7 +135,7 @@ def vector_add(vector1, vector2):
        (6, 9)
        >>>
     """
-    if len(vector1)<3 or len(vector2)<3:
+    if len(vector1) < 3 or len(vector2) < 3:
         return vector1[0] + vector2[0], vector1[1] + vector2[1]
     else:
         return vector1[0] + vector2[0], vector1[1] + vector2[1], vector1[2] + vector2[2]
@@ -255,7 +255,7 @@ def get_angled_corners(x: int, y: int, anglechange: int, centx=0, centy=0, forma
     >>>
     """
 
-    anglechange = -anglechange  #  swapped for different axis in opencv
+    anglechange = -anglechange  # swapped for different axis in opencv
     x = x - centx
     y = y - centy
     
@@ -302,7 +302,7 @@ def get_corners(x, y, width, height, shape='rectangle', bottom=0, angle=0) -> tu
                    (x + (width / 2), y - (height / 2)))
     elif shape == 'kite':
         # kite shape
-        # print(x,y,width,height)
+        # print(x, y, width, height)
         corners = ((x - (width / 2), y),
                    (x, y + height),
                    (x + (width / 2), y),

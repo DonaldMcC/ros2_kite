@@ -18,7 +18,7 @@
 
 # TODO need to work through above links and then figure out an initial approach - suggest bottom up
 # Not really convinced this is required going forward - will move to ComArduino2PY3 for now
-# including moving the
+# consider the mock stuff and then remove
 from kite_funcs import getangle
 
 barangle = 0
