@@ -66,8 +66,6 @@ from kite_logging import writelogheader, writepictheader, closelogs
 from ComArduino2PY3 import init_arduino, send_motor_get_barangle
 
 
-# all below functions are not pure as wasn't able to pass the frame for some reason
-# TODO rework as pure functions
 def drawroute(route, centrex, centrey):
     global frame
     for k, l in enumerate(route):
@@ -252,6 +250,33 @@ def present_calibrate_row(row):
 def mouse_events(event, x, y, flags,param):
     if(event == cv2.EVENT_LBUTTONDOWN):
         print('leftclick')
+    return
+
+def cleanup():
+    global total_time, cv2, config, camera, write, leftStream, rightStream
+    # Exit and clean up
+    print("[INFO] cleaning up...")
+    # Grab Currrent Time After Running the Code
+    end = time.time()
+
+    #Subtract Start Time from The End Time
+    total_time = end - start
+    print("\n"+ str(total_time))
+
+    closelogs(config)
+    cv2.destroyAllWindows()
+    if config.numcams == 1:
+        try:
+            camera.stop()
+        except AttributeError:
+            pass
+    else:
+        leftStream.stop()
+        rightStream.stop()
+
+    if writer is not None:
+        writer.release()
+    quit()
 
 
 # MAIN ROUTINE START
@@ -416,7 +441,11 @@ while True:
         else:
             frame = camera
     # print('frame', frame.shape[1],frame.shape[0])
-    height, width, channels = frame.shape
+    try:
+        height, width, channels = frame.shape
+    except AttributeError:
+        cleanup()
+
     writepictheader(config, height, width, fps)
 
     if background is None:
@@ -557,22 +586,5 @@ while True:
     # writelogs(config, kite, base, control, frame, height, width, countertup)
     time.sleep(control.slow)
 
-# Exit and clean up
-print("[INFO] cleaning up...")
-# Grab Currrent Time After Running the Code
-end = time.time()
+cleanup()
 
-#Subtract Start Time from The End Time
-total_time = end - start
-print("\n"+ str(total_time))
-
-closelogs(config)
-cv2.destroyAllWindows()
-if config.numcams == 1:
-    camera.stop()
-else:
-    leftStream.stop()
-    rightStream.stop()
-
-if writer is not None:
-    writer.release()
