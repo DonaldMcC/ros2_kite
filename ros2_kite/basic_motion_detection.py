@@ -1,51 +1,46 @@
 #!/usr/bin/env python
-# this will be the main module for configuring the desired route and
-# for showing the position and angle of the kite
-# it is the only video output from the package and consequently
-# will display and also allow direct updating of the proposed route
+# this is main module for displaying the position and angle of the kite and
+# calculating the required direction
 
-# inputs
-# the module will support main input either input single or dual webcam or from a video file - this may
-# extend to rosbag files in future
-# there is input from a resistor which is linked to the kitebar and can be calibrated to provide
-# the angle of the bar which is now being moved via an arduino connect to two actuators
+# Inputs
+# the module will support main input either input single or dual webcam or from a video file 
+# there is input from a resistor linked to the kitebar and can be calibrated to provide
+# the angle of the bar which is moved via an arduino connected to two actuators
 #
-# outputs
-# the main output will be a ROS message reporting the x and y coordinates of the kite,
-# the current angle of the control bar and the motor instruction to change the angle of the bar.
-# It is possible to record the input if required - the motor instruction is on motormsg.data
+# Outputs
+# the main outputs should be the position of the kite, the current angle of the control
+# bar and the motor instruction to change the angle of the bar
+
+# It should be possible to record the display if required TODO - get instructions for this
 #
-# initial configuration
-# file can be started with  various arguments and can be easily changed to work with a specified
-# video file if started without arguments it will generally use webcam input - however this can
-# change depending on what I am working on.
+# Initial Configuration
+# file can be started with various arguments and can to work with recorded
+# video files.
+# if started without arguments it will generally use webcam input
 #
-# while runing it is possible there are 4 modes
+# Operating Modes
+# There are 4 operating modes which can be changed with the mode button
 # 1 Std - the main controls adjust the height and shape of figure of 8 routing
-# 2 SetFlightMode - starting objective is stability of kite in park position - but also wiggle
-#   and then fig 8 are possible
+# 2 SetFlightMode - there are 3 possible modes park position, wiggle and fig 8
 # 2 Manflight - the main controls adjust the position and angle of a manual kite
-# 3 Manbar - controls adjust the angle of the bar as well as key for the rout
+#               this is ideal for testing that the controls are working
+# 3 Manbar - controls adjust the angle of the bar so this is similar to flying
+#            kite by yourself with no inferral of action - however the kite would
+#            still be detected on the screen
 #
 # At startup it is possible to:
 # 1 detect an actual kite on video or manually controlled one for testing and simulation
 # 2 set the linkage between controls - Standard, BarKiteActual, KiteBarInfer, KiteBarTarget
-# Standard means no connections between KiteAngle, KiteTargetAngle and Bar Angles
-# KiteAngle means the observed or actual angle of the kite sets the actual bar angle
-# KiteTargetAngle - observed or actual angle of the kite sets the target bar angle
-# BarAngle - the actual angle of the bar sets the angle of the kite - this setup can
-# be achieved at any point by going into Manbar - but BarAngle basically starts with this setup
-# show connections from and to ie BarKiteActual the Kite angle is updated from the bar Angle
+#   Standard means no connections between KiteAngle, KiteTargetAngle and Bar Angles
+#   KiteAngle means the observed or actual angle of the kite sets the actual bar angle
+#   KiteTargetAngle - observed or actual angle of the kite sets the target bar angle
+#   BarAngle - the actual angle of the bar sets the angle of the kite - this setup can
+#   be achieved at any point by going into Manbar - but BarAngle basically starts with this 
+#   Will be a review of the extent to which all these linkages are useful
 #
+#   on playback it should be possible to go into slow motion
 #
-# on playback it should be possible to go into slow motion
-# am now going to fully rove ROS2 - python serial seems to be the way to work with Arduino now
-# above caused a need to comment out all the ros2 lines so these are basically the bits that need fixed - main
-# idea is to use right and centre buttons of 3 button mouse to replace the whole joystick piece as mainly need a
-# fast flexible left and right to do different things - so joystick part needs re-written
-# other parts will be to read the bar angle and write the motor message which should both take place via new functions
-# I think and may leave the ros stuff in place for legacy purposes
-
+# idea is to use right and centre buttons of 3 button mouse to replace joystick
 
 # standard library imports
 import numpy as np
@@ -57,6 +52,7 @@ import argparse
 from imutils.video import VideoStream
 from panorama import Stitcher
 import imutils
+# this project imports
 from move_func import get_heading_points, get_angled_corners
 from mainclasses import Kite, Controls, Base, Config, calc_route
 from move_func import get_angle
@@ -121,7 +117,6 @@ def drawkite(kite):
     startverx = kite.x
     starthorx, starthory = get_angled_corners(starthorx, starthory, kite.kiteangle, kite.x, kite.y, 'int')
     endhorx, endhory = get_angled_corners(endhorx, endhory, kite.kiteangle, kite.x, kite.y, 'int')
-
     startverx, startvery = get_angled_corners(startverx, startvery, kite.kiteangle, kite.x, kite.y, 'int')
     endverx, endvery = get_angled_corners(endverx, endvery, kite.kiteangle, kite.x, kite.y, 'int')
 
@@ -339,7 +334,7 @@ if config.source == 1:
                 print("File not found continuing:", args.file)
     config.logging = 1
 else:
-    print('I am 2')
+    print('Working from file')
     # TODO at some point will change this to current directory and append file - not urgent
     # camera = cv2.VideoCapture(r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4')
     camera = cv2.VideoCapture(r'c:/pyproj/ros2_kite/ros2_kite/choppedkite_horizshort.mp4')
