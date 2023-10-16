@@ -46,6 +46,7 @@
 # other parts will be to read the bar angle and write the motor message which should both take place via new functions
 # I think and may leave the ros stuff in place for legacy purposes
 
+
 # standard library imports
 import numpy as np
 import PySimpleGUI as sg
@@ -324,8 +325,7 @@ if config.source == 1:
     # camera = cv2.VideoCapture(-1)
     # probably need to go below route to do stitching but need to understand differences first
     if config.numcams == 1:
-        #camera = VideoStream(src=-1).start()
-        camera = VideoStream(src=0).start()
+        camera = VideoStream(src=-1).start()
         stitcher = None
     else:
         leftStream = VideoStream(src=2).start()  # think this is the top part to check
@@ -354,7 +354,7 @@ else:
 es = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (10, 10))
 kernel = np.ones((5, 5), np.uint8)
 background = None
-# imagemessage = KiteImage()
+#imagemessage = KiteImage()
 
 # def test_pid(P = 1.0,  I = 0.0, D= 0.0, L=100):
 pid = PID.PID(1, 0, 0)
@@ -364,7 +364,7 @@ pid.setSampleTime(0.01)
 # and the coordinate deltas
 counter = 0
 
-# if use_ros2:
+#if use_ros2:
 #    listen_kiteangle('kiteangle')  # this then updates base.barangle via the callback function
 #    if config.check_motor_sim:
 #        listen_kiteangle('mockangle')  # this then subscribes to our simulation of expected movement of the bar
@@ -401,8 +401,7 @@ cv2.setMouseCallback('contours', mouse_events)
 fps = 15
 # fps = camera.get(cv2.CV_CAP_PROP_FPS)
 
-#try comment out for now
-#get_angles(kite, base, control, config)
+get_angles(kite, base, control, config)
 time.sleep(2)
 base.start_time = round(time.monotonic() * 1000)
 writelogheader(config, kite, base, control)
@@ -516,8 +515,7 @@ while True:
         kite.update_phase()
 
     # Update actual angles based on full setup
-    # get_angles(kite, base, control, config)
-
+    get_angles(kite, base, control, config)
     kite.targetangle = kite.targetheading
 
     if kite.zone == 'Centre' or kite.phase == 'Xwind':
@@ -530,14 +528,13 @@ while True:
 
     # if use_ros2 and config.check_motor_sim:
     #    base.mockangle = get_actmockangle(kite, base, control, config)
+
     display_stats()
     display_flight(width)
-
     display_base(width)
 
     # kite_pos(kite.x, kite.y, kite.kiteangle, kite.dX, kite.dY, 0, 0)
     doaction = True if control.motortest or base.calibrate or control.inputmode == 3 else False
-    doaction = False
 
     if not doaction:
         #TODO Look at what this doaction stuff is all about
@@ -548,10 +545,11 @@ while True:
     # send the action to arduino and get barangle back
     # TODO this needs reworked - want to send to arduino immediately on message change
     # most going full right or left and don't really need the barangle to determine action
-    if counter % 15 == 0:
-        base.resistance, base.barangle = send_motor_get_barangle(base, serial_conn)
+    #if counter % 15 == 0:
+    #   base.barangle = send_motor_get_barangle(base.action, serial_conn)
     display_motor_msg(base.action, config.setup)
 
+    cv2.imshow("contours", frame)
     # below commented due to failing on 18.04
     # kiteimage.pubimage(imagemessage, frame)
 
