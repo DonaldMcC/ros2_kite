@@ -292,7 +292,8 @@ def get_corners(x, y, width, height, shape='rectangle', bottom=0, angle=0) -> tu
     >>> get_corners(30, 40, 20, 10, 'kite', 30)
     ((20, 40), (30, 50), (40, 40), (30, 10))
     >>> get_corners(30, 40, 10, 20, 'rectangle', 0,30)
-    ((20.669872981077805, 33.83974596215562), (30.669872981077805, 51.16025403784439), (39.33012701892219, 46.16025403784439), (29.330127018922198, 28.83974596215561))
+    ((20.669872981077805, 33.83974596215562), (30.669872981077805, 51.16025403784439), (39.33012701892219,
+    46.16025403784439), (29.330127018922198, 28.83974596215561))
     >>>
     """
     if shape == 'rectangle':
@@ -303,6 +304,11 @@ def get_corners(x, y, width, height, shape='rectangle', bottom=0, angle=0) -> tu
     elif shape == 'kite':
         # kite shape
         # print(x, y, width, height)
+        corners = ((x - (width / 2), y),
+                   (x, y + height),
+                   (x + (width / 2), y),
+                   (x, y - bottom))
+    else:  # No other shapes expected
         corners = ((x - (width / 2), y),
                    (x, y + height),
                    (x + (width / 2), y),
@@ -384,7 +390,7 @@ def conv_lin(a, b=1.0, c=0.0, inverse=False):
         return (a - c) / b
 
 
-def adjust_line_length(x:int, y:int, z:int, r:int) -> tuple:
+def adjust_line_length(x: int, y: int, z: int, r: int) -> tuple:
     """
         This adjusts kite line length based to ensure kite is at line length
        and is required because we are assuming straight line motion so x,y,z
@@ -404,7 +410,7 @@ def adjust_line_length(x:int, y:int, z:int, r:int) -> tuple:
     return finalv[0], finalv[1], finalv[2]
 
     
-def get_plan_pos(p:int, h:int, t:int, s:int) ->tuple:
+def get_plan_pos(p: tuple, h: tuple, t: int, s: int) -> tuple:
     """
     Return the position of an object in position p on heading h (unit vector after time t if travelling at speed s
        >>> get_plan_pos((1, 2, 3), (0, 0.707,0.707), 1, 5)
@@ -414,7 +420,7 @@ def get_plan_pos(p:int, h:int, t:int, s:int) ->tuple:
     return vector_add(p, mvmt)
 
 
-def move_item(x:int, y:int, targetx:int, targety:int, distance:int) -> tuple:
+def move_item(x: int, y: int, targetx: int, targety: int, distance: int) -> tuple:
     """
         >>> move_item(1, 1, 4, 5, 5)
         (4.0, 5.0)
@@ -424,8 +430,8 @@ def move_item(x:int, y:int, targetx:int, targety:int, distance:int) -> tuple:
     # approach is work out distance between
     # use the distance function and then we have a ratio of how much of the distance we got
     # then we do vectormult and that gives us the new point which we add to the start??
-    myheading = heading((x, y), (targetx, targety))
-    return get_plan_pos((x,y), myheading, 1, distance)
+    myheading = heading((x, y),  (targetx, targety))
+    return get_plan_pos((x, y), myheading, 1, distance)
 
 
 def _test():

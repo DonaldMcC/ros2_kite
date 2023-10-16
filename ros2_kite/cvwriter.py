@@ -1,7 +1,7 @@
 # initialize the FourCC, video writer, dimensions of the frame, and
 # zeros array
 
-from __future__ import print_function
+# from __future__ import print_function
 import numpy as np
 import cv2
 

@@ -1,4 +1,4 @@
-# Importing Libraries
+# Not currently using - all work via ComArduino2PY3.py for now
 # This proves two way comms between arduino and python - arduino adds 1 to the number you send it
 # will require a sketch on arduino that does the increment
 # possibly look at pySerialTransfer and SerialTransfer.h

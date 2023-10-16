@@ -8,20 +8,19 @@ def my_exception_hook(exctype, value, traceback):
     sys._excepthook(exctype, value, traceback)
     sys.exit(1)
 
-def runcam():
 
+def runcam():
     camera = cv2.VideoCapture(0)
 
     for i in range(10):
         time.sleep(1)  # implemented for cams with long image aquisition time. Its 1 sec.
-                       # delay before the next step is repeated until range has finished.
-                       # From first image to last each image becomes brighter.
+        # delay before the next step is repeated until range has finished.
+        # From first image to last each image becomes brighter.
         return_value, image = camera.read()
         cv2.imwrite('opencv'+str(i)+'.png', image)
-        print (' taking image %s' % (i+1))
+        print(' taking image %s' % (i+1))
 
-
-    del(camera)
+    del camera
 
     # Back up the reference to the exceptionhook
     sys._excepthook = sys.excepthook
@@ -29,19 +28,20 @@ def runcam():
     # Set the exception hook to our wrapping function
     sys.excepthook = my_exception_hook
 
+
 def check_cam_index():
     i = 0
     found = False
     for i in range(4):
-            capture = cv2.VideoCapture(i)
-            if not capture:
-                print ("UNABLE TO CAPTURE CAMERA")
-            else:
-                found = True
-                print("taken camera from index: ", i)
-                break
+        capture = cv2.VideoCapture(i)
+        if not capture:
+            print("UNABLE TO CAPTURE CAMERA")
+        else:
+            found = True
+            print("taken camera from index: ", i)
+            break
 
-    if found == False:
+    if found is False:
         print("!!! No camera was found.")
         sys.exit()
 

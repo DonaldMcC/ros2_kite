@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# this will need to be reworked - but concept is probably still valid just get rid of ros stuff
+
 # this should generally receive motor msg which is currently just left or right based on 3 or 4 respectively
 # or stop at 0.  1 and 2 are forward and backwards for initialisation - the purpose of this was initially to allow
 # test of the setup without any actual arduino hardware and that should be provided by the kiteangle function
@@ -38,7 +40,6 @@ oscilation that has been going on
 # is basis for below
 
 # and runs with ros2 run ros2_kite mock_ard
-import time
 import math
 import rclpy
 from rclpy.node import Node
