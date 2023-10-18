@@ -128,21 +128,12 @@ def send_motor_get_barangle(base,  serial_conn):
     while serial_conn.inWaiting() == 0:
         pass
     datarecvd = recv_from_arduino(serial_conn)
-    #print("Reply Received  " + datarecvd)
+    # print("Reply Received  " + datarecvd)
     resistance = get_sensor(datarecvd)
     barangle = getangle(resistance, base.maxleft, base.maxright,
                         base.resistleft, base.resistright, base.resistcentre)
     return resistance, barangle
 
-# below to be deleted - not going to be used
-def get_barangle(kite, base, control, config, serport):
-    if config.setup == 'KiteBarActual':
-        return kite.kiteangle / base.kitebarratio
-    else:  # get resistance from arduino
-        resistance = int(recv_from_arduino(serport))
-        barangle = getangle(resistance, base.maxleft, base.maxright,
-                            base.resistleft, base.resistright, base.resistcentre)
-        return barangle
 
 def runtest(td, serial_conn, sleep=1):
     print('running')

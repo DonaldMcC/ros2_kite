@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# this will need to be reworked - but concept is probably still valid just get rid of ros stuff
+# this will need to be reworked - but concept is probably still valid just get rid of ros stuff - now pruned but needs redesign
+next - probably sort the real one first then align the mock
 
 # this should generally receive motor msg which is currently just left or right based on 3 or 4 respectively
 # or stop at 0.  1 and 2 are forward and backwards for initialisation - the purpose of this was initially to allow
@@ -36,15 +37,10 @@ arduino doesn't have our actual parameters but we need to make the defaults the 
 oscilation that has been going on
 """
 
-# https://docs.ros.org/en/galactic/Tutorials/Writing-A-Simple-Py-Publisher-And-Subscriber.html
-# is basis for below
-
-# and runs with ros2 run ros2_kite mock_ard
 import math
 import rclpy
 from rclpy.node import Node
 import sys
-#sys.path.append("/path/to/install/planner_pkg/lib/python3.6/site-packages/planner_pkg")
 
 import argparse
 from std_msgs.msg import String, Int16
@@ -63,68 +59,8 @@ SPEED_ACT = 30.0  # mm/sec
 FORCE_ACT = 200  # N but not sure if will actually use this
 CIRC_ACT = 2 * math.pi * DIST_ACT
 
-class MinimalPublisher(Node):
-    def __init__(self):
-        #super().__init__('minimal_publisher')
-        super().__init__('mock_arduino')
-        self.publisher_ = self.create_publisher(Int16, 'topic', 10)
-        timer_period = 0.5  # seconds
-        #self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.timer = self.create_timer(timer_period, self.mock_kiteangle)
-        self.i = 0
-        self.cycle_time = 0.5
-
-    def timer_callback(self):
-        msg2 = String()
-        msg2.data = 'Hello World: %d' % self.i
-        self.publisher_.publish(msg2)
-        self.get_logger().info('Publishing: "%s"' % msg2.data)
-        self.i += 1
-
-    def mock_kiteangle(self):
-        msg = Int16()
-        global motorvalue
-        global barangle
-        #pub = rclpy.Publisher(message, Int16, queue_size=1)
-        #rclpy.init_node('mock_arduino', anonymous=False)
-        #rate = rclpy.Rate(20)  # Cycles per Second
-        # left_act_pos = get_coord(0-DIST_ACT, 0, barangle) not convinced this serves purpose
-
-        #listen_motormsg()
-
-        get_motorv()
-        print('motorv', motorvalue)
-        #cycle_time = round(time.monotonic() * 1000) - loop_time
-        #loop_time = round(time.monotonic() * 1000)
-        barangle = mockangle(barangle, self.cycle_time)
-        resistance = getresist(barangle)
-        msg.data=resistance
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg.data)
-        print(self.cycle_time, barangle, resistance)
-        self.i += 1
-
-
-class MinimalSubscriber(Node):
-    def __init__(self):
-        super().__init__('minimal_subscriber')
-        self.subscription = self.create_subscription(String,'topic', self.listener_callback, 10)
-        self.subscription  # prevent unused variable warning
-
-    def listener_callback(self, msg):
-        self.get_logger().info('I heard: "%s"' % msg.data)
-
-
-def not_main(args=None):
-    rclpy.init(args=args)
-    minimal_subscriber = MinimalSubscriber()
-    rclpy.spin(minimal_subscriber)
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    minimal_subscriber.destroy_node()
-    rclpy.shutdown()
-
+barangle = mockangle(barangle, self.cycle_time)
+resistance = getresist(barangle)
 
 
 def mockangle(angle, elapsed_time):
@@ -158,48 +94,9 @@ def mockangle(angle, elapsed_time):
         angle = MAXRIGHT
     return angle
 
-
-def listen_motormsg():
-    rclpy.Subscriber('motormsg', Int16, callback, queue_size=1)
-
-
-def callback(data):
-    global motorvalue
-    motorvalue = data.data
-    return
-
-
-def get_motorv():
-    global motorvalue
-    return motorvalue
-
-
-def main(args=None):
-    """
-    :param args:
-    :return:
-    """
-    rclpy.init(args=args)
-    mock_arduino=MinimalPublisher()
-    rclpy.spin(mock_arduino)
-    # Destroy the node explicitly
-    # (optional - otherwise it will be done automatically
-    # when the garbage collector destroys the node object)
-    mock_arduino.destroy_node()
-    rclpy.shutdown()
-    return
+def test():
+    pass
 
 
 if __name__ == '__main__':
-    main()
-
-"""
-    try:
-        parser = argparse.ArgumentParser()
-        parser.add_argument('-m', '--message', type=str, default='kiteangle',
-                            help='message to generate either kiteangle or mockangle')
-        args = parser.parse_args()
-        new_angle = mock_kiteangle(args.message)
-    except rclpy.ROSInterruptException:
-        pass
-"""
+    test()
