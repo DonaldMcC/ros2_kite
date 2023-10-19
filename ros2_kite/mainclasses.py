@@ -170,6 +170,9 @@ class Base(object):
                                      self.resistleft, self.resistright, self.resistcentre)
         return
 
+    def update_barangle(self):
+        
+        base.barangle = send_motor_get_barangle(base.action, serial_conn)
 
 class Kite(object):
 

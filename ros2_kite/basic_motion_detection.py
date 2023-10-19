@@ -545,6 +545,8 @@ while True:
     # send the action to arduino and get barangle back
     # TODO this needs reworked - want to send to arduino immediately on message change
     # most going full right or left and don't really need the barangle to determine action
+    # think we make a method of the base and possibly move the serial_conn out of here too
+    
     #if counter % 15 == 0:
     #   base.barangle = send_motor_get_barangle(base.action, serial_conn)
     display_motor_msg(base.action, config.setup)
