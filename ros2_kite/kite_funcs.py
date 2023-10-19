@@ -7,6 +7,26 @@ conresistleft = 9999
 conresistright = 99999
 conresistcentre = 0
 
+#TODO - look at getting rid of this
+resistance = 200#
+
+# this should always return barangle except when barangle being set from the kite for simulation
+# or on manbar when bar should be freely controlled
+def get_barangle(kite, base, control, config):
+    global barangle, resistance
+    if config.setup == 'KiteBarActual':
+        return kite.kiteangle / base.kitebarratio
+    else:  # automated flight reading from some sort of sensor via ROS
+        barangle = getangle(resistance, base.maxleft, base.maxright,
+                            base.resistleft, base.resistright, base.resistcentre)
+        return barangle
+
+
+def get_actmockangle(kite, base, control, config):
+    global mockangle, mockresistance
+    mockangle = getangle(resistance, base.maxleft, base.maxright,
+                         base.resistleft, base.resistright, base.resistcentre)
+    return mockangle
 
 # http://www.pyimagesearch.com/2014/08/04/opencv-python-color-detection/
 # define the list of boundaries
