@@ -58,9 +58,9 @@ from imutils.video import VideoStream
 from panorama import Stitcher
 import imutils
 from move_func import get_heading_points, get_angled_corners
-from mainclasses import Kite, Controls, Base, Config, calc_route
+from mainclasses import Kite, Controls, Base, Config
 from move_func import get_angle
-from kite_funcs import kitemask, get_action, get_angles
+from kite_funcs import kitemask, get_action, get_angles, calc_route
 import PID
 from kite_logging import writelogheader, writepictheader, closelogs
 from ComArduino2PY3 import init_arduino, send_motor_get_barangle
