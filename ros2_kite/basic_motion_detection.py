@@ -169,22 +169,22 @@ def display_base(width):
     centx = outx + 60
     centy = 300
     radius = 60
-    cv2.putText(frame, 'Base R:' + str(base.resistance), (outx + 20, centy - 70),
+    cv2.putText(frame, f'Base R: {base.resistance}', (outx + 20, centy - 70),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
     cv2.circle(frame, (centx, centy), radius, (0, 255, 255), 2)
-    cv2.putText(frame, 'Act: ' + f'{base.barangle:5.1f}', (outx + 15, centy + 100), cv2.FONT_HERSHEY_SIMPLEX,
-                0.65, (0, 255, 0), 2)
-    cv2.putText(frame, 'Tgt: ' + f'{base.targetbarangle:5.1f}', (outx + 15, centy + 130),
+    cv2.putText(frame, f'Act: {base.barangle:5.1f}', (outx + 15, centy + 100),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 0), 2)
+    cv2.putText(frame, f'Tgt: {base.targetbarangle:5.1f}', (outx + 15, centy + 130),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 255, 255), 2)
     display_line(base.targetbarangle, centx, centy, radius, (0, 255, 255))
     display_line(base.barangle, centx, centy, radius, (0, 255, 0))
     if config.setup == 'KiteBarInfer':
         display_line(base.inferbarangle, centx, centy, radius, (255, 0, 0))
-        cv2.putText(frame, 'Inf: ' + f'{base.inferbarangle:5.1f}', (outx + 15, centy + 160),
+        cv2.putText(frame, f'Inf: {base.inferbarangle:5.1f}', (outx + 15, centy + 160),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.65, (255, 0, 0), 2)
     if config.check_motor_sim:
         display_line(base.mockangle, centx, centy, radius, (128, 0, 0))
-        cv2.putText(frame, 'Mock: ' + f'{base.mockangle:5.1f}', (outx + 15, centy + 70),
+        cv2.putText(frame, f'Mock: {base.mockangle:5.1f}', (outx + 15, centy + 70),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.65, (128, 0, 0), 2)
     return
 
@@ -195,15 +195,12 @@ def display_stats():
                 (10, height - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 1)
     cv2.putText(frame, f"Man x: {kite.x:.1f}, y: {kite.y:.1f}",
                 (180, height - 30), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 0, 255), 2)
-    cv2.putText(frame, "Act Angle: " + str(int(kite.kiteangle)),
-                (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    cv2.putText(frame, "Tgt Angle: " + str(int(kite.targetangle)), (10, 70),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    cv2.putText(frame, "Tgt Heading: " + str(int(kite.targetheading)), (10, 90),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    cv2.putText(frame, "Mode: " + str(control.config), (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    cv2.putText(frame, "Area: " + str(kite.contourarea), (10, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    cv2.putText(frame, "Counter:" + str(counter), (10, 170), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, f'Act Angle: {kite.kiteangle}', (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, f'Tgt Angle: {kite.targetangle}', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, f"Tgt Heading: {kite.targetheading}", (10, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, f"Mode: {control.config}", (10, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, f"Area: {kite.contourarea}", (10, 130), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+    cv2.putText(frame, f"Counter: {counter}", (10, 170), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     return
 
 
@@ -212,10 +209,10 @@ def display_flight(screenwidth):
     outx = screenwidth - 180
     fontsize = 0.5
     tempstr = "Found: Yes" if kite.found else "Found: No"
-    cv2.putText(frame, 'Zone: ' + kite.zone, (outx, 40), cv2.FONT_HERSHEY_SIMPLEX, fontsize, (0, 0, 255), 2)
+    cv2.putText(frame, f'Zone: {kite.zone}', (outx, 40), cv2.FONT_HERSHEY_SIMPLEX, fontsize, (0, 0, 255), 2)
     cv2.putText(frame, tempstr, (outx, 60), cv2.FONT_HERSHEY_SIMPLEX, fontsize, (0, 0, 255), 2)
-    cv2.putText(frame, 'Mode: ' + kite.mode, (outx, 80), cv2.FONT_HERSHEY_SIMPLEX, fontsize, (0, 0, 255), 2)
-    cv2.putText(frame, 'Phase: ' + kite.phase, (outx, 100), cv2.FONT_HERSHEY_SIMPLEX, fontsize, (0, 0, 255), 2)
+    cv2.putText(frame, f'Mode: {kite.mode}', (outx, 80), cv2.FONT_HERSHEY_SIMPLEX, fontsize, (0, 0, 255), 2)
+    cv2.putText(frame, f'Phase: {kite.phase}', (outx, 100), cv2.FONT_HERSHEY_SIMPLEX, fontsize, (0, 0, 255), 2)
     return
 
 
@@ -525,13 +522,14 @@ while True:
     doaction = True if control.motortest or base.calibrate or control.inputmode == 3 else False
 
     if not doaction:
-        #TODO Look at what this doaction stuff is all about
+        # TODO Look at what this doaction stuff is all about
         pid.SetPoint = base.targetbarangle
         pid.update(base.barangle)
         base.action = get_action(pid.output, base.barangle)
 
     base.update_barangle(serial_conn)
     display_motor_msg(base.action, config.setup)
+
 
     cv2.imshow("contours", frame)
     # below commented due to failing on 18.04
