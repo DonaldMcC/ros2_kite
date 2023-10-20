@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 #
+# Controls class handles the routing and inputs from keyboard or joystick to
+# the program.  Joystock was linked to wiimote when using ROS - not planning
+# on using that going forward so will be keyboard and mouse input going forward
+# along with keyboard, mouse and joystick there is suport for 4 input 
 import time
 from kite_funcs import calc_route
+
 
 class Controls(object):
 
@@ -31,13 +36,13 @@ class Controls(object):
         return self.config, self.inputmode, self.motortest
 
     def getmodestring(self, inputmode):
-        # So now always 11 buttons and first 5 and last 2 are std and iteration through should be std
+        # So now always 11 buttons and first 5 and last 2 are std and iteration through should be std 
         # so we would have a defined transition of names based on which change took place
         if inputmode == 0:  # Standard
             return 'STD: Left Right Up Down Pause Wider Narrow Expand Contract Mode Quit'
         elif inputmode == 1:
             return 'SETFLIGHTMODE: Left Right Up Down Pause Park Wiggle Fig8 Reset Mode Quit'
-        elif self.inputmode == 2:
+        elif inputmode == 2:
             return 'MANFLIGHT: Left Right Up Down Pause Anti Clock Slow Fast Mode Quit'
         else:  # inputmode = 3
             return 'MANBAR: Left Right Up Down Pause Anti Clock Slow Fast Mode Quit'
