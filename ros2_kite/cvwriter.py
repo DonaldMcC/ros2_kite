@@ -1,7 +1,8 @@
 # initialize the FourCC, video writer, dimensions of the frame, and
 # zeros array
+# this is for video logging of the screen plus settings - not been tested for a while
+# but expected to be still working
 
-# from __future__ import print_function
 import numpy as np
 import cv2
 

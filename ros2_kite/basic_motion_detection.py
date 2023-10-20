@@ -59,7 +59,9 @@ from panorama import Stitcher
 import imutils
 from move_func import get_heading_points, get_angled_corners
 from control_class import Controls
-from mainclasses import Kite, Base, Config
+from kite_class import Kite
+from base_class import Base
+from config_class import Config
 from move_func import get_angle
 from kite_funcs import kitemask, get_action, get_angles, calc_route
 import PID

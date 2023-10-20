@@ -24,9 +24,11 @@ def writepictheader(config, height, width, fps):
 def writelogs(config, kite, base, control, frame, height, width, counter):
     if config.logging:  # not saving this either as it errors on other screen
         writeframe(config.writer, frame, height, width)
-        #mydata = config.getlogdata()
+        # mydata = config.getlogdata()
         config.csvwriter.write_data(counter + kite.getlogdata() + base.getlogdata() +
-                                    control.getlogdata() + config.getlogdata() + (datetime.now().strftime("%m/%d/%Y, %H:%M:%S.%f"),) )
+                                    control.getlogdata() + config.getlogdata() +
+                                    (datetime.now().strftime("%m/%d/%Y, %H:%M:%S.%f"),))
+
 
 def closelogs(config):
     config.csvwriter.close_output()
