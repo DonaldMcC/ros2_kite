@@ -146,7 +146,7 @@ class Base(object):
         return
 
     def update_barangle(self, serial_conn):
-        self.barangle = send_motor_get_barangle(self.action, serial_conn)
+        self.barangle = send_motor_get_barangle(self, serial_conn)
 
 
 def _test():

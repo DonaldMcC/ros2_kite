@@ -60,7 +60,7 @@ from move_func import get_angle
 from kite_funcs import kitemask, get_action, get_angles, calc_route
 import PID
 from kite_logging import writelogheader, writepictheader, closelogs
-from ComArduino2PY3 import init_arduino
+from ComArduino2PY3 import init_arduino, send_to_arduino
 
 
 def drawroute(route, centrex, centrey):
@@ -308,7 +308,8 @@ kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(
     control.centrex, control.centrey, mode='fig8')
 base = Base(kitebarratio=1, safety=True)
 
-serial_conn = init_arduino("COM5", 57600)
+serial_conn = init_arduino("COM7", 57600)
+
 while config.source not in {1, 2}:
     config.source = input('Key 1 for camera or 2 for source')
 # should define source here
@@ -431,6 +432,8 @@ while True:
     try:
         height, width, channels = frame.shape
     except AttributeError:
+        height = 0
+        width = 0
         cleanup()
 
     writepictheader(config, height, width, fps)
@@ -518,6 +521,7 @@ while True:
     display_base(width)
 
     # kite_pos(kite.x, kite.y, kite.kiteangle, kite.dX, kite.dY, 0, 0)
+    # TODO - think below should all be part of update_barangle
     doaction = True if control.motortest or base.calibrate or control.inputmode == 3 else False
 
     if not doaction:
@@ -526,13 +530,7 @@ while True:
         pid.update(base.barangle)
         base.action = get_action(pid.output, base.barangle)
 
-    # send the action to arduino and get barangle back
-    # TODO this needs reworked - want to send to arduino immediately on message change
-    # most going full right or left and don't really need the barangle to determine action
-    # think we make a method of the base and possibly move the serial_conn out of here too
-    
-    #if counter % 15 == 0:
-    #   base.barangle = send_motor_get_barangle(base.action, serial_conn)
+    base.update_barangle(serial_conn)
     display_motor_msg(base.action, config.setup)
 
     cv2.imshow("contours", frame)
@@ -557,12 +555,15 @@ while True:
         key = cv2.waitKey(20) & 0xff
         if key != -1:
             quitkey, resetH = control.keyhandler(key, kite, base, control, event)
+        else:
+            quitkey = None
+
     else:  # mouse only
         # quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
         quitkey, resetH = control.mousehandler(kite, base, control, event)
 
     # added cv2.waitKey back in for ubuntu 22.04 - not clear why it was neeed but window failed to display without it
-    if quitkey or event in ('Quit', None) or cv2.waitKey(1) & 0xFF == ord('q'):  # quit if controls window closed or home key
+    if quitkey or event in ('Quit', None) or cv2.waitKey(1) & 0xFF == ord('q'):  # quit if window closed or home key
         break
 
     if resetH and stitcher:
@@ -573,4 +574,3 @@ while True:
     time.sleep(control.slow)
 
 cleanup()
-

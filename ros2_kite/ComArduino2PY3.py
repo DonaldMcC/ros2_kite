@@ -64,14 +64,18 @@ endmarker = 62
 # =====================================
 
 
-def init_arduino(serport='COM5', baudrate=57600):
+def init_arduino(serport='COM7', baudrate=57600, got_arduino=True):
     # NOTE the user must ensure that the serial port and baudrate are correct
     # serPort = "/dev/ttyS80"
-    try:
+    if got_arduino:
         ser = serial.Serial(serport, baudrate)
         wait_for_arduino(ser)
-    except serial.serialutil.SerialException as e:
-        ser = None
+    else:
+        try:
+            ser = serial.Serial(serport, baudrate)
+            wait_for_arduino(ser)
+        except serial.serialutil.SerialException as e:
+            ser = None
     print("Serial port " + serport + " opened  Baudrate " + str(baudrate))
     return ser
 
@@ -124,6 +128,7 @@ def get_sensor(ard_data):
 
 
 def send_motor_get_barangle(base,  serial_conn):
+    print(f'action{base.action}')
     send_to_arduino(f'<{base.action}>', serial_conn)
     while serial_conn.inWaiting() == 0:
         pass
@@ -179,6 +184,6 @@ if __name__ == "__main__":
     print('back')
     testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
     runtest(testdata, sp, 0)
-    bar = send_motor_get_barangle(120, sp)
-    print(bar)
+    #bar = send_motor_get_barangle(120, sp)
+    #print(bar)
     sp.close()
