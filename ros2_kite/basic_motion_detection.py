@@ -45,7 +45,7 @@
 import numpy as np
 import PySimpleGUI as sg
 import time
-import cv2
+import cv2  # this is required even though pycharm doesn't think so
 import argparse
 # pyimagesearch imports
 from imutils.video import VideoStream
@@ -233,11 +233,11 @@ def display_motor_msg(action, setup):
     outx = width - 250
     outy = height - 30
     fontsize = 0.5
-    cv2.putText(frame, 'Motor Msg: ' + str(action) + ' ' + setup, (outx, outy), cv2.FONT_HERSHEY_SIMPLEX, fontsize,
+    cv2.putText(frame, f'Motor Msg: {action} {setup}', (outx, outy), cv2.FONT_HERSHEY_SIMPLEX, fontsize,
                 (0, 255, 255), 2)
     return
 
-
+# below doesn't appear to be used
 def present_calibrate_row(row):
     # some sort of accuracy formulas here
     return f'Action: {row[0]} T_Time: {row[1]} A_Time: {row[2]} ' \
@@ -253,7 +253,7 @@ def cleanup():
     global total_time, cv2, config, camera, write, leftStream, rightStream
     # Exit and clean up
     print("[INFO] cleaning up...")
-    # Grab Currrent Time After Running the Code
+    # Grab Current Time After Running the Code
     end = time.time()
 
     #Subtract Start Time from The End Time
@@ -294,9 +294,6 @@ args = parser.parse_args()
 
 # iphone
 masklimit = 1000
-# wind
-# masklimit = 1000
-# config = 'yellowballs'  # alternative when base not present will also possibly be combo
 # KITETYPE = 'indoorkite'  # need to comment out for external
 # KITETYPE = 'kite1'
 KITETYPE = 'kite2'  # start for iphone SE video
@@ -305,16 +302,13 @@ KITETYPE = 'kite2'  # start for iphone SE video
 # setup options are Manfly, Standard
 
 # initiate class instances
-# config = Config(setup='Manfly', source=1, input='Joystick')
 config = Config(source=2, kite=args.kite,  numcams=1, check_motor_sim=True, setup=args.setup, logging=1)
 control = Controls(config.kite, step=16, motortest=args.motortest)
 kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(
     control.centrex, control.centrey, mode='fig8')
 base = Base(kitebarratio=1, safety=True)
-print('input', control.inputmode)
 
 serial_conn = init_arduino("COM5", 57600)
-
 while config.source not in {1, 2}:
     config.source = input('Key 1 for camera or 2 for source')
 # should define source here
@@ -336,7 +330,7 @@ if config.source == 1:
                 print("File not found continuing:", args.file)
     config.logging = 1
 else:
-    print('I am 2')
+    print('Working from file')
     # TODO at some point will change this to current directory and append file - not urgent
     # camera = cv2.VideoCapture(r'/home/donald/catkin_ws/src/kite_ros/scripts/choppedkite_horizshort.mp4')
     camera = cv2.VideoCapture(r'c:/pyproj/ros2_kite/ros2_kite/choppedkite_horizshort.mp4')
@@ -360,11 +354,6 @@ pid.setSampleTime(0.01)
 # initialize the list of tracked points, the frame counter,
 # and the coordinate deltas
 counter = 0
-
-#if use_ros2:
-#    listen_kiteangle('kiteangle')  # this then updates base.barangle via the callback function
-#    if config.check_motor_sim:
-#        listen_kiteangle('mockangle')  # this then subscribes to our simulation of expected movement of the bar
 
 sg.theme('Black')  # Pysimplegui setup
 
@@ -401,6 +390,7 @@ fps = 15
 get_angles(kite, base, control, config)
 time.sleep(2)
 base.start_time = round(time.monotonic() * 1000)
+# setup CSV file headers
 writelogheader(config, kite, base, control)
 
 # Grab Currrent Time Before Running the Code
@@ -522,9 +512,6 @@ while True:
     drawcross(kite.targetx, kite.targety, 'Target', (0, 150, 250))
     if kite.autofly:
         kite.move_kite(control, 10)
-
-    # if use_ros2 and config.check_motor_sim:
-    #    base.mockangle = get_actmockangle(kite, base, control, config)
 
     display_stats()
     display_flight(width)
