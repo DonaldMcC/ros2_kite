@@ -1,34 +1,32 @@
 #!/usr/bin/env python
-# this will be the main module for configuring the desired route and
-# for showing the position and angle of the kite
-# it is the only video output from the package and consequently
-# will display and also allow direct updating of the proposed route
+# this will be the main module for configuring the desired route and for showing the position and angle of the kite
+# it is the only video output from the package and consequently displays and also allow updating of the proposed route
 
 # inputs
-# the module will support main input either input single or dual webcam or from a video file - this may
-# extend to rosbag files in future
+# the module will support main input either input single or dual webcam or from a video file
 # there is input from a resistor which is linked to the kitebar and can be calibrated to provide
-# the angle of the bar which is now being moved via an arduino connect to two actuators
+# the angle of the bar which is now being moved via an arduino connected to two actuators
 #
 # outputs
-# the main output will be a ROS message reporting the x and y coordinates of the kite,
-# the current angle of the control bar and the motor instruction to change the angle of the bar.
-# It is possible to record the input if required - the motor instruction is on motormsg.data
+# the main outputs will be  the motor instruction to change the angle of the bar but most other values can also be
+# logged
+# It is also possible to record the video input if required
 #
 # initial configuration
 # file can be started with  various arguments and can be easily changed to work with a specified
 # video file if started without arguments it will generally use webcam input - however this can
 # change depending on what I am working on.
 #
-# while runing it is possible there are 4 modes
+# while running there are 4 input modes to allow seting various parameters
 # 1 Std - the main controls adjust the height and shape of figure of 8 routing
 # 2 SetFlightMode - starting objective is stability of kite in park position - but also wiggle
 #   and then fig 8 are possible
-# 2 Manflight - the main controls adjust the position and angle of a manual kite
-# 3 Manbar - controls adjust the angle of the bar as well as key for the rout
+# 3 Manflight - the main controls adjust the position and angle of a manual kite
+# 4 Manbar - controls adjust the angle of the bar as well as key for the route
 #
-# At startup it is possible to:
-# 1 detect an actual kite on video or manually controlled one for testing and simulation
+#
+# Before startup it is possible to:
+# 1 detect an actual kite on video or alternatively a manually controlled one for testing and simulation
 # 2 set the linkage between controls - Standard, BarKiteActual, KiteBarInfer, KiteBarTarget
 # Standard means no connections between KiteAngle, KiteTargetAngle and Bar Angles
 # KiteAngle means the observed or actual angle of the kite sets the actual bar angle
@@ -39,12 +37,8 @@
 #
 #
 # on playback it should be possible to go into slow motion
-# am now going to fully rove ROS2 - python serial seems to be the way to work with Arduino now
-# above caused a need to comment out all the ros2 lines so these are basically the bits that need fixed - main
-# idea is to use right and centre buttons of 3 button mouse to replace the whole joystick piece as mainly need a
-# fast flexible left and right to do different things - so joystick part needs re-written
+# have now fully removed ROS2 - python serial seems to be the way to work with Arduino now
 # other parts will be to read the bar angle and write the motor message which should both take place via new functions
-# I think and may leave the ros stuff in place for legacy purposes
 
 
 # standard library imports
@@ -66,7 +60,7 @@ from move_func import get_angle
 from kite_funcs import kitemask, get_action, get_angles, calc_route
 import PID
 from kite_logging import writelogheader, writepictheader, closelogs
-from ComArduino2PY3 import init_arduino, send_motor_get_barangle
+from ComArduino2PY3 import init_arduino
 
 
 def drawroute(route, centrex, centrey):

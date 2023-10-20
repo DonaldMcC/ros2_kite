@@ -4,12 +4,19 @@
 #       init
 #       getlogheaders
 #       getlogdata
-#       getcalibratetime
+#       get_calibrate_time
+#       calibration_check
+#       plan_calibration_
+#       set_resistance
+#       get_barangle
+
 
 
 import time
 import math
 from collections import deque
+
+from ComArduino2PY3 import send_motor_get_barangle
 from kite_funcs import getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre, getangle
 
 
@@ -128,6 +135,8 @@ class Base(object):
 
     # this should always return barangle except when barangle being set from the kite for simulation
     # or on manbar when bar should be freely controlled
+
+    # bellow needs reworked along with update_barangle
     def get_barangle(self, kite, config, resistance):
         if config.setup == 'KiteBarActual':
             self.barangle = kite.kiteangle / self.kitebarratio
@@ -136,8 +145,8 @@ class Base(object):
                                      self.resistleft, self.resistright, self.resistcentre)
         return
 
-#    def update_barangle(self):
-#        base.barangle = send_motor_get_barangle(base.action, serial_conn)
+    def update_barangle(self, serial_conn):
+        self.barangle = send_motor_get_barangle(self.action, serial_conn)
 
 
 def _test():

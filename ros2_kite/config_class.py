@@ -23,21 +23,24 @@ This file should do the following things
 # Config - this holds settings for the operation
 #   methods:
 #       init
+#            key configurations are source, kite, setup, userinput and check_motor_sim
+#               source: 1 camera
+#                       2 video file
+#               kite:   standard - kite is scanned for in the picture or
+#                       manual in which case it is drawn on screen
+#               setup:  Standard - the software determines the motor actions based on kite position
+#                       Manual - input determines the movement of the Kite ie manual control of the kite
+#                                this mainly makes sense with a manual kite to check the process flies as expected
+#                       Manbar - input determines the movement of the Bar ie manual control of the bar
+#               userinput:  thinking now is that this will basically always be keyboard and xmouse control can be
+#                           configured to support keypresses for mouse based flying
 #       getlogheaders - outputs headers for CSV Log File
 #       getlogdata - outputs values for log file
 
 
-
-import time
-import math
-from collections import deque
-from kite_funcs import getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre, getangle
-from move_func import move_item
-
-
 class Config(object):
-    def __init__(self, source=2, kite='Standard', masklimit=10000,
-                 logging=0, numcams=1, check_motor_sim=False, setup='Standard', input='Keyboard'):
+    def __init__(self, source=2, kite='Standard', masklimit=10000, logging=0, numcams=1,
+                 check_motor_sim=False, setup='Standard', userinput='Keyboard'):
         self.source = source
         self.kite = kite
         self.masklimit = masklimit
@@ -45,7 +48,7 @@ class Config(object):
         self.numcams = numcams
         self.check_motor_sim = check_motor_sim
         self.setup = setup
-        self.input = input
+        self.input = userinput
         self.writer = None
 
     @staticmethod
@@ -56,12 +59,12 @@ class Config(object):
         return self.source, self.kite, self.masklimit, self.numcams, self.check_motor_sim, self.setup
 
 
-
 def _test():
     import doctest
-    doctest.testmod(extraglobs={'k': Kite()})
+    doctest.testmod()
 
 
 if __name__ == '__main__':
     # Can run with -v option if you want to confirm tests were run
+    # not really much to test in above
     _test()
