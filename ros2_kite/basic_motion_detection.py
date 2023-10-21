@@ -518,7 +518,8 @@ while True:
     display_base(width)
 
     # kite_pos(kite.x, kite.y, kite.kiteangle, kite.dX, kite.dY, 0, 0)
-    # TODO - think below should all be part of update_barangle
+    # TODO - think below should possibly be part of update_barangle
+    # but will leave for now
     doaction = True if control.motortest or base.calibrate or control.inputmode == 3 else False
 
     if not doaction:

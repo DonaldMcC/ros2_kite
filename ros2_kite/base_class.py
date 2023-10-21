@@ -17,13 +17,14 @@ import math
 from collections import deque
 
 from ComArduino2PY3 import send_motor_get_barangle
+from mock_arduino import mock_motor_get_barangle
 from kite_funcs import getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre, getangle
 
 
 class Base(object):
     def __init__(self, barangle=0, parkangle=0, maxright=conmaxright, maxleft=conmaxleft, lag=1,
                  targetbarangle=0, kitebarratio=1, inferbarangle=0, resistleft=conresistleft,
-                 resistright=conresistright, resistcentre=conresistcentre, safety=False):
+                 resistright=conresistright, resistcentre=conresistcentre, safety=False, num_cycles=100):
         self.barangle = barangle
         self.parkangle = parkangle
         self.maxright = maxright
@@ -36,6 +37,9 @@ class Base(object):
         self.mockangle = 0
         self.reset = False
         self.action = None
+        self.prev_action = None
+        self.cycles_counter = 0
+        self.num_cycles = num_cycles
         self.resistance = 0
         self.dist_act = 35.0  # Radius from fulcrum to attachment point of actuator - we will have two actuators
         self.speed_act = 30.0
@@ -146,7 +150,19 @@ class Base(object):
         return
 
     def update_barangle(self, serial_conn):
-        self.barangle = send_motor_get_barangle(self, serial_conn)
+        # currently this sends the motor action to arduino and gets back
+        # the bar angle reading - three main issues
+        # 1 updating every time is quite slow so think we check if new action and if not we can be fairly sparse in
+        # sending updates - added cycles counter and prev_action to support this
+        # 2 we want to simulate the anticipated movement of barangle if arduino not in place
+        # 3 we would like to track how good our mock function is compared to reality when we can and potentially
+        #  continuously update/learn from practice what the values should be
+        if self.action != self.prev_action or self.cycles_counter > self.num_cycles:
+            self.resistance, self.barangle = send_motor_get_barangle(self, serial_conn)
+            self.cycles_counter = 0
+        else:
+            self.cycles_counter += 1
+        self.prev_action = self.action
 
 
 def _test():

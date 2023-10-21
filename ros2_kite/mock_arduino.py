@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # this will need to be reworked - but concept is probably still valid just get rid of ros stuff - now pruned but needs redesign
-next - probably sort the real one first then align the mock
+#next - probably sort the real one first then align the mock
 
 # this should generally receive motor msg which is currently just left or right based on 3 or 4 respectively
 # or stop at 0.  1 and 2 are forward and backwards for initialisation - the purpose of this was initially to allow
@@ -38,12 +38,6 @@ oscilation that has been going on
 """
 
 import math
-import rclpy
-from rclpy.node import Node
-import sys
-
-import argparse
-from std_msgs.msg import String, Int16
 from ros2_kite.kite_funcs import getresist, conmaxleft, conmaxright
 
 # from kite_funcs import checklimits, getresist, conmaxleft, conmaxright, conresistleft,\
@@ -59,18 +53,11 @@ SPEED_ACT = 30.0  # mm/sec
 FORCE_ACT = 200  # N but not sure if will actually use this
 CIRC_ACT = 2 * math.pi * DIST_ACT
 
-barangle = mockangle(barangle, self.cycle_time)
-resistance = getresist(barangle)
 
-
-def mockangle(angle, elapsed_time):
-    """This now attempts to simulate how we believe the bar should respond to messages sent to
-    the actuator given known distance from 'fulcrum' to mounting points and speed of the actuator.
-    Motorvalue is received for left and right and resistance is sent back as kiteangle message."""
-    speed = 255
-
-    global motorvalue
-    get_motorv()
+def mock_motor_get_barangle(base,  elapsed_time):
+    # this should operate similarly to send_motor_get_barangle
+    angle = base.barangle
+    motorvalue = base.action
     direction = motorvalue // 100
     rawspeed = motorvalue % 100
     speed = int((rawspeed * 255)/100) if rawspeed > 0 else 255
@@ -92,7 +79,10 @@ def mockangle(angle, elapsed_time):
         angle = MAXLEFT
     elif angle >= MAXRIGHT:
         angle = MAXRIGHT
-    return angle
+    resistance = getresist(barangle)
+
+    return resistance, angle
+
 
 def test():
     pass
