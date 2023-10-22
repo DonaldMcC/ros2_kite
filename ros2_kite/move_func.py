@@ -57,7 +57,6 @@ def get_angle(box, dx=0, dy=0, mindist=2):
         (-63.43494882292201, -71.56505117707799)
         >>> get_angle(np.array([[8,9],[6,8],[8,5],[10,6]]), 30, 10)
         (116.56505117707799, 108.43494882292202)
-
        """
 
     orderbox = order_points(box)
@@ -68,7 +67,6 @@ def get_angle(box, dx=0, dy=0, mindist=2):
         unitvect = heading(orderbox[0], orderbox[1])
     else:
         unitvect = heading(orderbox[3], orderbox[0])
-    # print unitvect
     angle = get_heading(unitvect[0], unitvect[1])
     heading_angle = get_heading(dx, dy)
 
@@ -114,9 +112,8 @@ def heading(xyz1, xyz2):
         try:
             x = (xyz2[0]-xyz1[0])/d
             y = (xyz2[1]-xyz1[1])/d
-            z = 0
         except ZeroDivisionError:
-            x, y, z = 0, 0, 0
+            x, y = 0, 0
     return x, y
 
 
@@ -126,7 +123,7 @@ def vector_mult(vector, mult):
        (8, 12)
        >>>
     """
-    return tuple([l * mult for l in vector])
+    return tuple([item * mult for item in vector])
 
 
 def vector_add(vector1, vector2):
@@ -141,7 +138,7 @@ def vector_add(vector1, vector2):
         return vector1[0] + vector2[0], vector1[1] + vector2[1], vector1[2] + vector2[2]
 
 
-def rotate90(x: int, y: int, dir='Clockwise') -> tuple:
+def rotate90(x: int, y: int, direction='Clockwise') -> tuple:
     """
     This rotates a 2d vector 90 degrees either clockwise or anti-clockwise
        >>> rotate90(2, 1)
@@ -151,7 +148,7 @@ def rotate90(x: int, y: int, dir='Clockwise') -> tuple:
        >>>
     """
 
-    if dir == 'Clockwise':
+    if direction == 'Clockwise':
         return y, -x
     else:
         return -y, x
@@ -160,7 +157,7 @@ def rotate90(x: int, y: int, dir='Clockwise') -> tuple:
 def rotate3d(point, angle, axis='y'):
     """ This rotates an xyz tuple by angle degrees around an axis by default y
        >>> rotate3d((10, 10, 10), 45)
-       (8.881784197001252e-16, 10, 14.142135623730951)
+       (0.0, 10, 14.142135623730951)
        >>>
     """
 
@@ -229,7 +226,7 @@ def get_coord(x, y, anglechange):
     return newx, newy
 
 
-def get_angled_corners(x: int, y: int, anglechange: int, centx=0, centy=0, format='float') -> tuple:
+def get_angled_corners(x: int, y: int, anglechange: int, centx=0, centy=0, form='float') -> tuple:
     """
     This calculates the new co-ordinates of a point on a circle with centre centx, centy
     when rotated through anglechange degrees
@@ -242,16 +239,16 @@ def get_angled_corners(x: int, y: int, anglechange: int, centx=0, centy=0, forma
     cy = y + r * math.sin(a)
     print(cx,cy)
 
-    >>> get_angled_corners(3,4,180)
-    (-2.9999999999999987, -4.000000000000001)
-    >>> get_angled_corners(3,-4,180)
-    (-3.0000000000000004, 3.9999999999999996)
-    >>> get_angled_corners(-3,4,180)
-    (3.0, -4.0)
-    >>> get_angled_corners(-3,-4,180)
-    (2.9999999999999987, 4.000000000000002)
-    >>> get_angled_corners(1,0,90)
-    (0, -1)
+    >>> get_angled_corners(3, 4, 180)
+    (-3.0, -4.0)
+    >>> get_angled_corners(3, -4, 180)
+    (-2.999999999999999, 4.0)
+    >>> get_angled_corners(-3, 4, 180)
+    (2.9999999999999987, -4.000000000000001)
+    >>> get_angled_corners(-3, -4, 180)
+    (2.999999999999999, 4.0)
+    >>> get_angled_corners(1, 0, 90)
+    (0.0, -1.0)
     >>>
     """
 
@@ -268,14 +265,14 @@ def get_angled_corners(x: int, y: int, anglechange: int, centx=0, centy=0, forma
         angle = 0.5 * math.pi + math.acos(x / radius)
     elif x < 0 <= y:
         angle = 0 + math.asin(x/radius)
-    else:  # x<0 and y<0
+    else:  # x < 0 and y < 0
         angle = math.pi + math.asin(-x / radius)
 
     newangle = angle + rads
     # print(newangle * 180/math.pi)
     cx = radius * math.sin(newangle) + centx
     cy = radius * math.cos(newangle) + centy
-    if format == 'int':
+    if form == 'int':
         cx = int(cx)
         cy = int(cy)
     return cx, cy
@@ -288,10 +285,10 @@ def get_corners(x, y, width, height, shape='rectangle', bottom=0, angle=0) -> tu
        than the top and finally if you need to tilt the shape then you can specify the angle to rotate the points
        by in degrees with 0 meaning no tilt and others rotating all points.
     >>> get_corners(30, 40, 10, 20)
-    ((25, 30), (25, 50), (35, 50), (35, 30))
+    ((25.0, 30.0), (25.0, 50.0), (35.0, 50.0), (35.0, 30.0))
     >>> get_corners(30, 40, 20, 10, 'kite', 30)
-    ((20, 40), (30, 50), (40, 40), (30, 10))
-    >>> get_corners(30, 40, 10, 20, 'rectangle', 0,30)
+    ((20.0, 40), (30, 50), (40.0, 40), (30, 10))
+    >>> get_corners(30, 40, 10, 20, 'rectangle', 0, 30)
     ((20.669872981077805, 33.83974596215562), (30.669872981077805, 51.16025403784439), (39.33012701892219,
     46.16025403784439), (29.330127018922198, 28.83974596215561))
     >>>
@@ -334,7 +331,7 @@ def get_coord_sphere(long, lat, r) -> tuple:
         >>> get_coord_sphere(0,90,20)
         (0.0, 20.0, 1.2246467991473533e-15)
         >>> get_coord_sphere(45,45,20)
-        (10.0, 14.14213562373095, 10.000000000000002)
+        (10.000000000000002, 14.142135623730951, 10.000000000000002)
         >>> get_coord_sphere(-80,20,20)
         (-18.50833156796647, 6.840402866513374, 3.2635182233306983)
         >>>
@@ -420,7 +417,7 @@ def get_plan_pos(p: tuple, h: tuple, t: int, s: int) -> tuple:
     return vector_add(p, mvmt)
 
 
-def move_item(x: int, y: int, targetx: int, targety: int, distance: int) -> tuple:
+def move_item(x: int, y: int, targetx: int, targety: int, dist: int) -> tuple:
     """
         >>> move_item(1, 1, 4, 5, 5)
         (4.0, 5.0)
@@ -431,7 +428,7 @@ def move_item(x: int, y: int, targetx: int, targety: int, distance: int) -> tupl
     # use the distance function and then we have a ratio of how much of the distance we got
     # then we do vectormult and that gives us the new point which we add to the start??
     myheading = heading((x, y),  (targetx, targety))
-    return get_plan_pos((x, y), myheading, 1, distance)
+    return get_plan_pos((x, y), myheading, 1, dist)
 
 
 def _test():

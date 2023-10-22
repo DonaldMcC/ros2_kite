@@ -1,30 +1,22 @@
 import numpy as np
 import cv2
 
-conmaxright = 9999
-conmaxleft = 0
-conresistleft = 9999
-conresistright = 99999
-conresistcentre = 0
-
-#TODO - look at getting rid of this
-resistance = 200#
+# resistance = 200#
 
 # this should always return barangle except when barangle being set from the kite for simulation
 # or on manbar when bar should be freely controlled
 def get_barangle(kite, base, control, config):
-    global barangle, resistance
     if config.setup == 'KiteBarActual':
         return kite.kiteangle / base.kitebarratio
     else:  # automated flight reading from some sort of sensor via ROS
-        barangle = getangle(resistance, base.maxleft, base.maxright,
+        barangle = getangle(base.resistance, base.maxleft, base.maxright,
                             base.resistleft, base.resistright, base.resistcentre)
         return barangle
 
 
 def get_actmockangle(kite, base, control, config):
-    global mockangle, mockresistance
-    mockangle = getangle(resistance, base.maxleft, base.maxright,
+    # global mockangle, mockresistance
+    mockangle = getangle(base.resistance, base.maxleft, base.maxright,
                          base.resistleft, base.resistright, base.resistcentre)
     return mockangle
 
@@ -101,8 +93,8 @@ def checklimits(angle, maxleft, maxright):
     return angle
 
 
-def getangle(resistance, maxleft=conmaxleft, maxright=conmaxright,
-             resistleft=conresistleft, resistright=conresistright, resistcentre=conresistcentre):
+def getangle(resistance, maxleft=0, maxright=9999,
+             resistleft=9999, resistright=99999, resistcentre=0):
     """
     :param resistcentre:
     :param resistright:
@@ -126,18 +118,18 @@ def getangle(resistance, maxleft=conmaxleft, maxright=conmaxright,
     # defined in degrees - the corrsesponding values of the resistor should be taken
     # for all of these and we will for now assume resistor is linear - have now changed
     # so that values beyond maxleft and maxright should be supported
-
+    angle = 0
     if resistance > resistcentre:
         angle = ((resistance - resistcentre) * maxright) / (resistright - resistcentre)
     elif resistance < resistcentre:
         angle = ((resistance - resistcentre) * maxleft) / (resistleft - resistcentre)
-    else:
-        angle = 0
+
     return int(angle)
 
 
-def getresist(angle, maxleft=conmaxleft, maxright=conmaxright, resistleft=conresistleft,
-              resistright=conresistright, resistcentre=conresistcentre):
+# TODO - think this should always be called with actual values
+def getresist(angle, maxleft=0, maxright=9999, resistleft=9999,
+              resistright=99999, resistcentre=0):
     """
     :param resistcentre:
     :param resistright:
@@ -172,7 +164,7 @@ def getresist(angle, maxleft=conmaxleft, maxright=conmaxright, resistleft=conres
     return int(resistance)
 
 
-def get_action(output, barangle):
+def get_action(output, barangle, maxleft=0, maxright=9999):
     # Now added ability to send motor message 6 for leftonly and 7 for rightonly
     # and will now add speed into the message as %age of max value up to 99 but 0 is max speed
     """
@@ -185,34 +177,23 @@ def get_action(output, barangle):
         >>> get_action(0, 0)
         0
         """
-
-    MAXLEFT = conmaxleft  # These are to try and avoid breaking the bar
-    MAXRIGHT = conmaxright  # similarly to protect bar as attached close to pivot
     TOLERANCE = 1  # degree of tolerance
+
     action = 0
     if abs(output) < TOLERANCE:
         action = 0  # stop
-    elif output < 0 and barangle > MAXLEFT:
+    elif output < 0 and barangle > maxleft:
         action = 300  # Left
-    elif output > 0 and barangle < MAXRIGHT:
+    elif output > 0 and barangle < maxright:
         action = 400  # Right
+
     # TODO think about how PID impacts this if at all - speed should prob be used
     # action = int(msg + speed) if 0 < speed < 100 else int(msg)
     return action
 
 
-def _test():
-    import doctest
-    doctest.testmod(verbose=False)
-
-
-if __name__ == '__main__':
-    'Can run with -v option if you want to confirm tests were run'
-    _test()
-
-
 def get_angles(kite, base, control, config):
-    base.resistance = resistance
+    # base.resistance = resistance
     base.barangle = get_barangle(kite, base, control, config)
     # print('setr to ' + str(resistance))
     if config.setup == 'KiteBarTarget':
@@ -312,3 +293,12 @@ def calc_route(centrex=400, centrey=300, halfwidth=200, radius=100):
     pt5 = (rightx, centrey - radius)
     return [pt0, pt1, pt2, pt3, pt4, pt5]
 
+
+def _test():
+    import doctest
+    doctest.testmod(verbose=False)
+
+
+if __name__ == '__main__':
+    'Can run with -v option if you want to confirm tests were run'
+    _test()

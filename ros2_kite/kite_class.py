@@ -62,18 +62,19 @@ class Kite(object):
                 self.targettype, self.targetx, self.targety, self.changezone, self.changephase, self.routechange,
                 self.changephase, self.routechange, self.found, self.targetheading, self.targetangle)
 
-    def get_zone(self, leftx, rightx):
+    def get_zone(self, leftx: int, rightx: int) -> str:
         """
-        >>> k=Kite(400)
-        >>> k.get_zone(100,600)
+        >>> k=Kite(50)
+        >>> k.get_zone(100, 600)
         'Left'
 
         >>> l=Kite(400)
-        >>> l.get_zone(300,600)
+        >>> l.get_zone(300, 600)
         'Centre'
-        :param leftx:
-        :param rightx:
-        :return:
+
+        >>> l=Kite(800)
+        >>> l.get_zone(300, 600)
+        'Right'
         """
         self.zone = 'Left' if self.x < leftx else 'Right' if self.x > rightx else 'Centre'
         return self.zone
@@ -107,7 +108,7 @@ class Kite(object):
         currentzone = self.zone
         self.get_zone(control.routepoints[0][0], control.routepoints[3][0])
         self.changezone = True if self.zone != currentzone else False
-        if self.changezone:  # set to false at start of next turn
+        if self.changezone:  # set to false for start of next turn
             self.turncomplete = False
         return
 

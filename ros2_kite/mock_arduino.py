@@ -38,12 +38,11 @@ oscilation that has been going on
 """
 
 import math
-from ros2_kite.kite_funcs import getresist, conmaxleft, conmaxright
+from ros2_kite.kite_funcs import getresist
 
-# from kite_funcs import checklimits, getresist, conmaxleft, conmaxright, conresistleft,\
-#     conresistright, conresistcentre
-MAXLEFT = conmaxleft  # These are to simulate limits of angles
-MAXRIGHT = conmaxright  # similarly to protect bar as attached close to pivot
+
+MAXLEFT = 0  # These are to simulate limits of angles
+MAXRIGHT = 9999  # similarly to protect bar as attached close to pivot
 
 motorvalue = 500  # stop
 barangle = 0
@@ -84,9 +83,10 @@ def mock_motor_get_barangle(base,  elapsed_time):
     return resistance, angle
 
 
-def test():
-    pass
+def _test():
+    import doctest
+    doctest.testmod()
 
 
 if __name__ == '__main__':
-    test()
+    _test()

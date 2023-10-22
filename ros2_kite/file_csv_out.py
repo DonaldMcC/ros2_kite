@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
 # This initializes the actual file output to review the various settings and data in a csv file
 # utilizes the logging sections of the config, base, controls and kite classes
 

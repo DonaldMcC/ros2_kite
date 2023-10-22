@@ -18,8 +18,13 @@ from collections import deque
 
 from ComArduino2PY3 import send_motor_get_barangle
 from mock_arduino import mock_motor_get_barangle
-from kite_funcs import getresist, conmaxright, conmaxleft, conresistleft, conresistright, conresistcentre, getangle
+from kite_funcs import getresist, getangle
 
+conmaxright = 9999
+conmaxleft = 0
+conresistleft = 9999
+conresistright = 99999
+conresistcentre = 0
 
 class Base(object):
     def __init__(self, barangle=0, parkangle=0, maxright=conmaxright, maxleft=conmaxleft, lag=1,
@@ -167,7 +172,7 @@ class Base(object):
 
 def _test():
     import doctest
-    doctest.testmod()
+    doctest.testmod(extraglobs={'b': Base()})
 
 
 if __name__ == '__main__':
