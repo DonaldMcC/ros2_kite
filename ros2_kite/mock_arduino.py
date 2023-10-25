@@ -38,8 +38,8 @@ oscilation that has been going on
 """
 
 import math
-from ros2_kite.kite_funcs import getresist
-
+#from ros2_kite.kite_funcs import getresist
+from kite_funcs import getresist
 
 MAXLEFT = 0  # These are to simulate limits of angles
 MAXRIGHT = 9999  # similarly to protect bar as attached close to pivot
