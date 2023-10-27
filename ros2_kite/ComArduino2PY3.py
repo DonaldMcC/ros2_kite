@@ -54,6 +54,9 @@
 
 import serial
 import time
+from readchar import readkey, key
+
+
 from kite_funcs import getangle
 
 startmarker = 60
@@ -164,17 +167,43 @@ def runtest(td, serial_conn, sleep=1):
         time.sleep(sleep)
 
 
-# Think this does a single cycle - but now rather concerned that this will need to cycle with arduino
-# hopefully if we send and then receive once the sending can trigger and only aim for 1 message per cycle in sync
-# with option to process more cycles if required
-def call_arduino(serial_conn, motormsg: int, textback: str):
-    pass
+def config_bar():
+    # This should allow basic configuration of the motors which can be needed to setup the bar and
+    # however for some reason readchar DOES NOT detect keystrokes within pycharm so need to run
+    # directly from python interpreter
+    # idea is that this can support adjustment of motors readily
+    # Left, Right, Up, Down seems easy enough so L will select left motor and R the right
+    # and we send command for fixed amount of movement probably - might also have a B
+    # for Both Motors
+    sp = init_arduino()
+    pause_interval = 0.2
+    while True:
+        command = readkey()
+        print(command)
+        #if key == "a":
+        #    print("text")
+
+        #    command = input('press a key')
+        if command == 'q':
+            break
+        if command == 'r':
+            print('you pressed r')
+        if command == 'l':
+            print('you pressed l')
+        time.sleep(pause_interval)
+
+    sp.close()
+    return
+
+
+
 
 
 # ======================================
 # THE DEMO PROGRAM STARTS HERE
 # ======================================
 if __name__ == "__main__":
+    config_bar()
     print()
     print()
 
@@ -184,6 +213,4 @@ if __name__ == "__main__":
     print('back')
     testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
     runtest(testdata, sp, 0)
-    #bar = send_motor_get_barangle(120, sp)
-    #print(bar)
     sp.close()
