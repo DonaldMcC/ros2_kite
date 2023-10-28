@@ -166,6 +166,20 @@ def runtest(td, serial_conn, sleep=1):
             print("===========")
         time.sleep(sleep)
 
+def move(serial, mot, direction, mot_sp):
+    # this will send to arduino and get resistance
+    # need to convert direction and speed into message
+    
+    
+    send_to_arduino(f'<{base.action}>', serial_conn)
+    while serial_conn.inWaiting() == 0:
+        pass
+    datarecvd = recv_from_arduino(serial_conn)
+    resistance = get_sensor(datarecvd)
+    return resistance
+
+    
+
 
 def config_bar():
     # This should allow basic configuration of the motors which can be needed to setup the bar and
@@ -175,21 +189,30 @@ def config_bar():
     # Left, Right, Up, Down seems easy enough so L will select left motor and R the right
     # and we send command for fixed amount of movement probably - might also have a B
     # for Both Motors
+    motor=None
+    resistance = None
     sp = init_arduino()
     pause_interval = 0.2
+    motor_speed = 100
+    motor_time = 0.
     while True:
-        command = readkey()
-        print(command)
-        #if key == "a":
-        #    print("text")
-
-        #    command = input('press a key')
-        if command == 'q':
-            break
-        if command == 'r':
-            print('you pressed r')
-        if command == 'l':
-            print('you pressed l')
+        match readkey():
+            case 'q':
+                break
+            case 'r':
+                print('Right Motor Selected')
+                motor = 'Right'
+            case 'l':
+                print('Left Motor Selected')
+                motor = 'Left'
+            case 'u':
+                print('Up')
+                move(sp, motor, 'Up', motor_speed, motor_time) 
+            case 'd':
+                print('Down')
+                move(sp, motor, 'Down', motor_speed, motor_time
+            case _:
+                pass
         time.sleep(pause_interval)
 
     sp.close()
