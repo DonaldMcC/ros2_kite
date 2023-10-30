@@ -58,7 +58,6 @@ from readchar import readkey, key
 
 
 from kite_funcs import getangle
-
 startmarker = 60
 endmarker = 62
 
@@ -166,19 +165,18 @@ def runtest(td, serial_conn, sleep=1):
             print("===========")
         time.sleep(sleep)
 
-def move(serial, mot, direction, mot_sp):
+
+def move(serial_prt, mot, direction, mot_sp):
     # this will send to arduino and get resistance
     # need to convert direction and speed into message
-    
-    
-    send_to_arduino(f'<{base.action}>', serial_conn)
-    while serial_conn.inWaiting() == 0:
+    message = 0
+
+    send_to_arduino(f'<{message}>', serial_prt)
+    while serial_prt.inWaiting() == 0:
         pass
-    datarecvd = recv_from_arduino(serial_conn)
+    datarecvd = recv_from_arduino(serial_prt)
     resistance = get_sensor(datarecvd)
     return resistance
-
-    
 
 
 def config_bar():
@@ -189,7 +187,7 @@ def config_bar():
     # Left, Right, Up, Down seems easy enough so L will select left motor and R the right
     # and we send command for fixed amount of movement probably - might also have a B
     # for Both Motors
-    motor=None
+    motor = None
     resistance = None
     sp = init_arduino()
     pause_interval = 0.2
@@ -207,19 +205,15 @@ def config_bar():
                 motor = 'Left'
             case 'u':
                 print('Up')
-                move(sp, motor, 'Up', motor_speed, motor_time) 
+                move(sp, motor, 'Up', motor_speed)
             case 'd':
                 print('Down')
-                move(sp, motor, 'Down', motor_speed, motor_time
+                move(sp, motor, 'Down', motor_speed)
             case _:
                 pass
         time.sleep(pause_interval)
-
     sp.close()
     return
-
-
-
 
 
 # ======================================
