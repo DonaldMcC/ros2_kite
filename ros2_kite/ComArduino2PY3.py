@@ -54,8 +54,7 @@
 
 import serial
 import time
-from readchar import readkey, key
-
+from readchar import readkey
 
 from kite_funcs import getangle
 startmarker = 60
@@ -169,8 +168,17 @@ def runtest(td, serial_conn, sleep=1):
 def move(serial_prt, mot, direction, mot_sp):
     # this will send to arduino and get resistance
     # need to convert direction and speed into message
-    message = 0
-
+    message = '0'
+    if mot == 'Left' and direction == 'Up':
+        message = '600'
+    if mot == 'Left' and direction == 'Down':
+        message = '700'
+    if mot == 'Right' and direction == 'Up':
+        message = '800'
+    if mot == 'Right' and direction == 'Down':
+        message = '900'
+    if mot_sp > 0 and mot_sp < 100:
+        message = message[0]+str(mot_sp)
     send_to_arduino(f'<{message}>', serial_prt)
     while serial_prt.inWaiting() == 0:
         pass
@@ -193,6 +201,7 @@ def config_bar():
     pause_interval = 0.2
     motor_speed = 100
     motor_time = 0.
+    motor_prefix = '0'
     while True:
         match readkey():
             case 'q':
@@ -200,9 +209,11 @@ def config_bar():
             case 'r':
                 print('Right Motor Selected')
                 motor = 'Right'
+                motor_prefix = '7'
             case 'l':
                 print('Left Motor Selected')
                 motor = 'Left'
+
             case 'u':
                 print('Up')
                 move(sp, motor, 'Up', motor_speed)

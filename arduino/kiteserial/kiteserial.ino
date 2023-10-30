@@ -110,10 +110,16 @@ switch (direction) {
       right(speed);
       break;
     case 6:
-      leftonly(speed);
+      left_only_forward(speed);
       break;
     case 7:
-      rightonly(speed);
+      left_only_backward(speed);
+      break;
+    case 8:
+      right_only_forward(speed);
+      break;
+    case 9:
+      right_only_backward(speed);
       break;
     default:
         stop();
@@ -169,13 +175,22 @@ void left(int speed)//
      digitalWrite(pinI1,LOW);
 }
 
-void leftonly(int speed)//
+void left_only_forward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
      digitalWrite(pinI4,HIGH);//turn DC Motor B move clockwise
      digitalWrite(pinI3,LOW);
 }
+
+void left_only_backward(int speed)//
+{
+     analogWrite(speedpinA,speed);//input a simulation value to set the speed
+     analogWrite(speedpinB,speed);
+     digitalWrite(pinI4,LOW);//turn DC Motor B move clockwise
+     digitalWrite(pinI3,HIGH);
+}
+
 
 void right(int speed)//
 {
@@ -187,7 +202,7 @@ void right(int speed)//
      digitalWrite(pinI1,HIGH);
 }
 
-void rightonly(int speed)//
+void right_only_forward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
@@ -195,6 +210,13 @@ void rightonly(int speed)//
      digitalWrite(pinI1,HIGH);
 }
 
+void right_only_backward(int speed)//
+{
+     analogWrite(speedpinA,speed);//input a simulation value to set the speed
+     analogWrite(speedpinB,speed);
+     digitalWrite(pinI2,HIGH);//turn DC Motor A move clockwise
+     digitalWrite(pinI1,LOW);
+}
 void stop()//
 {
      digitalWrite(speedpinA,LOW);// Unenable the pin, to stop the motor. this should be done to avid damaging the motor.
