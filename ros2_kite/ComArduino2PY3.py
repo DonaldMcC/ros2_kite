@@ -132,7 +132,7 @@ def get_sensor(ard_data):
 
 def send_motor_get_barangle(base,  serial_conn):
     # print(f'action{base.action}')
-    send_to_arduino(f'<{base.action}>', serial_conn)
+    send_to_arduino(f'<M, {base.action}>', serial_conn)
     while serial_conn.inWaiting() == 0:
         pass
     datarecvd = recv_from_arduino(serial_conn)
@@ -182,7 +182,7 @@ def move(serial_prt, mot, direction, mot_sp):
     if mot_sp > 0 and mot_sp < 100:
         message = message[0]+str(mot_sp)
     print(f'sending{message}')
-    send_to_arduino(f'<{message}>', serial_prt)
+    send_to_arduino(f'<M, {message}>', serial_prt)
     while serial_prt.inWaiting() == 0:
         pass
     datarecvd = recv_from_arduino(serial_prt)
