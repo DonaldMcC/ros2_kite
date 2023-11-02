@@ -51,6 +51,8 @@
 # we already moved get barangle to method of base so now need to look at how
 # send motor_msg worked but this should be simple enought and 
 
+#TODO 1 unpacking message back not working
+# motormsg getting received as 0 but the test stuff seems to work
 
 import serial
 import time
@@ -179,10 +181,12 @@ def move(serial_prt, mot, direction, mot_sp):
         message = '900'
     if mot_sp > 0 and mot_sp < 100:
         message = message[0]+str(mot_sp)
+    print(f'sending{message}')
     send_to_arduino(f'<{message}>', serial_prt)
     while serial_prt.inWaiting() == 0:
         pass
     datarecvd = recv_from_arduino(serial_prt)
+    print("Reply Received  " + datarecvd)
     resistance = get_sensor(datarecvd)
     return resistance
 
@@ -213,7 +217,6 @@ def config_bar():
             case 'l':
                 print('Left Motor Selected')
                 motor = 'Left'
-
             case 'u':
                 print('Up')
                 move(sp, motor, 'Up', motor_speed)
@@ -223,6 +226,7 @@ def config_bar():
             case _:
                 pass
         time.sleep(pause_interval)
+        print(f'Resistance: {resistance}')
     sp.close()
     return
 
@@ -232,8 +236,6 @@ def config_bar():
 # ======================================
 if __name__ == "__main__":
     config_bar()
-    print()
-    print()
 
     # NOTE the user must ensure that the serial port and baudrate are correct
     # serPort = "/dev/ttyS80"
