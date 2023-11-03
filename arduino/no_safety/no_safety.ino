@@ -22,6 +22,9 @@
 //  Those values but can go opposite way obviously
 //  Second issue is motor commands being sent and resistor not changing
 //  Think we stop when that happens too but probably after a second or so of movement
+//
+//  This file has no safety checks that resistor is moving as actuator moves - not recommended for actual use
+//  as may break any frames or harnesses you are using
 
 int MAXLEFT = 770;
 int MAXRIGHT = 930;
@@ -34,7 +37,8 @@ int safetymove = 4;  // amount the resistance should change in safetycycle or sa
 int startsensor;
 int sensormin;
 int sensormax;
-int safetycycle = 2000; // amount the resistor should move in period - if less motors stop until direction changes
+//int safetycycle = 2000; // amount the resistor should move in period - if less motors stop until direction changes
+int safetycycle = 4000; // amount the resistor should move in period - if less motors stop until direction changes
 int storedirection;
 int prevsensor = 0;
 unsigned int motormsg;
@@ -145,7 +149,7 @@ void setup()
 }
 
 
-void backward(int speed)  //1
+void backward(int speed)
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
@@ -155,7 +159,7 @@ void backward(int speed)  //1
      digitalWrite(pinI1,HIGH);
 }
 
-void forward(int speed) //2
+void forward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
@@ -165,7 +169,7 @@ void forward(int speed) //2
      digitalWrite(pinI1,LOW);
 }
 
-void left(int speed) //3
+void left(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
@@ -175,7 +179,7 @@ void left(int speed) //3
      digitalWrite(pinI1,LOW);
 }
 
-void left_only_forward(int speed)//6
+void left_only_forward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
@@ -231,61 +235,6 @@ void loop()
   getDataFromPC();
   callback();
   replyToPC();
-
-  if (currdirection == 3 && sensorValue < MAXLEFT) {
-    stop();
-  };
-
-  if (currdirection == 4 && sensorValue > MAXRIGHT) {
-    stop();
-  };
-
-  if (currdirection > 2) {
-    if (!motorson) {
-      startmotorstime = millis();
-      startsensor = sensorValue;
-      motorson = true;
-      sensormax = sensorValue;
-      sensormin = sensorValue;
-      //Serial.print("motorson");
-      //Serial.println();
-    } else {
-      // already running
-      runtime = millis() - startmotorstime;
-      if (runtime > safetycycle) {
-          if ((sensormax - sensormin) > safetymove) {
-            //start a new interval
-            startmotorstime = millis();
-            sensormax = sensorValue;
-            sensormin = sensorValue;
-          } else {
-            //stop the motors until direction changes
-            safetystop = true;
-            //Serial.print("instopzone");
-            //Serial.println();
-            storedirection = currdirection;
-            stop();
-          }
-      } else {
-        //update max and min cumulation was unreliable
-        if (sensorValue > sensormax) {
-          sensormax = sensorValue;
-        }
-        if (sensorValue < sensormin) {
-          sensormin = sensorValue;
-        }
-      }
-    }
-  } else {
-      // stopped moving
-   motorson = false;
-  };
-
-  if (currdirection != storedirection) {
-    safetystop = false;
-  };
-
-  prevsensor = sensorValue;
   delay(10);
 }
 
@@ -345,3 +294,4 @@ void replyToPC() {
     Serial.println(">");
   }
 }
+

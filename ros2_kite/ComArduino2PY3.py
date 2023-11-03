@@ -126,7 +126,9 @@ def wait_for_arduino(serial_conn):
 
 def get_sensor(ard_data):
     msg = ard_data.split(' ')
+    print(msg)
     sensor = int(msg[3])
+    print(sensor)
     return sensor
 
 
@@ -219,10 +221,10 @@ def config_bar():
                 motor = 'Left'
             case 'u':
                 print('Up')
-                move(sp, motor, 'Up', motor_speed)
+                resistance = move(sp, motor, 'Up', motor_speed)
             case 'd':
                 print('Down')
-                move(sp, motor, 'Down', motor_speed)
+                resistance = move(sp, motor, 'Down', motor_speed)
             case _:
                 pass
         time.sleep(pause_interval)
@@ -242,5 +244,5 @@ if __name__ == "__main__":
     sp = init_arduino()
     print('back')
     testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
-    runtest(testdata, sp, 0)
+    runtest(testdata, sp, 5)
     sp.close()
