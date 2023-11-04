@@ -22,9 +22,6 @@
 //  Those values but can go opposite way obviously
 //  Second issue is motor commands being sent and resistor not changing
 //  Think we stop when that happens too but probably after a second or so of movement
-//
-//  This file has no safety checks that resistor is moving as actuator moves - not recommended for actual use
-//  as may break any frames or harnesses you are using
 
 int MAXLEFT = 770;
 int MAXRIGHT = 930;
@@ -183,16 +180,16 @@ void left_only_forward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
-     digitalWrite(pinI4,HIGH);//turn DC Motor B move clockwise
-     digitalWrite(pinI3,LOW);
+     digitalWrite(pinI2,HIGH);//turn DC Motor A move anticlockwise
+     digitalWrite(pinI1,LOW);
 }
 
 void left_only_backward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
-     digitalWrite(pinI4,LOW);//turn DC Motor B move clockwise
-     digitalWrite(pinI3,HIGH);
+     digitalWrite(pinI2,LOW);//turn DC Motor A move clockwise
+     digitalWrite(pinI1,HIGH);
 }
 
 
@@ -210,16 +207,16 @@ void right_only_forward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
-     digitalWrite(pinI2,LOW);//turn DC Motor A move clockwise
-     digitalWrite(pinI1,HIGH);
+     digitalWrite(pinI4,LOW);//turn DC Motor B move anticlockwise
+     digitalWrite(pinI3,HIGH);
 }
 
 void right_only_backward(int speed)//
 {
      analogWrite(speedpinA,speed);//input a simulation value to set the speed
      analogWrite(speedpinB,speed);
-     digitalWrite(pinI2,HIGH);//turn DC Motor A move clockwise
-     digitalWrite(pinI1,LOW);
+     digitalWrite(pinI4,HIGH);//turn DC Motor B move clockwise
+     digitalWrite(pinI3,LOW);
 }
 void stop()//
 {
@@ -294,4 +291,6 @@ void replyToPC() {
     Serial.println(">");
   }
 }
+
+
 

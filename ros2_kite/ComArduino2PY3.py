@@ -181,6 +181,8 @@ def move(serial_prt, mot, direction, mot_sp):
         message = '800'
     if mot == 'Right' and direction == 'Down':
         message = '900'
+    if mot == 'Stop':
+        message = '000'
     if mot_sp > 0 and mot_sp < 100:
         message = message[0]+str(mot_sp)
     print(f'sending{message}')
@@ -225,6 +227,9 @@ def config_bar():
             case 'd':
                 print('Down')
                 resistance = move(sp, motor, 'Down', motor_speed)
+            case 's':
+                print('Stop')
+                resistance = move(sp, motor, 'Stop', motor_speed)
             case _:
                 pass
         time.sleep(pause_interval)
@@ -243,6 +248,6 @@ if __name__ == "__main__":
     # serPort = "/dev/ttyS80"
     sp = init_arduino()
     print('back')
-    testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
-    runtest(testdata, sp, 5)
+    # testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
+    # runtest(testdata, sp, 5)
     sp.close()
