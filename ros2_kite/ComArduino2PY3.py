@@ -51,7 +51,7 @@
 # we already moved get barangle to method of base so now need to look at how
 # send motor_msg worked but this should be simple enought and 
 
-#TODO 1 unpacking message back not working
+# TODO 1 unpacking message back not working
 # motormsg getting received as 0 but the test stuff seems to work
 
 import serial

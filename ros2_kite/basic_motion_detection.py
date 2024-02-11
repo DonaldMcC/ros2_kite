@@ -60,7 +60,7 @@ from move_func import get_angle
 from kite_funcs import kitemask, get_action, get_angles, calc_route
 import PID
 from kite_logging import writelogheader, writepictheader, closelogs
-from ComArduino2PY3 import init_arduino, send_to_arduino
+from ComArduino2PY3 import init_arduino
 
 
 def drawroute(route, centrex, centrey):

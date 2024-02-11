@@ -11,7 +11,6 @@
 #       get_barangle
 
 
-
 import time
 import math
 from collections import deque
@@ -25,6 +24,7 @@ conmaxleft = 0
 conresistleft = 9999
 conresistright = 99999
 conresistcentre = 0
+
 
 class Base(object):
     def __init__(self, barangle=0, parkangle=0, maxright=conmaxright, maxleft=conmaxleft, lag=1,

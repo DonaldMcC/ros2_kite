@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 
+
 # resistance = 200#
 
 # this should always return barangle except when barangle being set from the kite for simulation
@@ -301,4 +302,8 @@ def _test():
 
 if __name__ == '__main__':
     'Can run with -v option if you want to confirm tests were run'
+    from kite_class import Kite
+    from base_class import Base
+    from config_class import Config
+    from control_class import Controls
     _test()
