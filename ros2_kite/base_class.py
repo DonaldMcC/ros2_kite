@@ -79,7 +79,6 @@ class Base(object):
         # believed to be there - and also identify if resistor is working as expected
         circ_act = 2 * math.pi * self.dist_act * 2  # because going to move each arm separately
         rev_time = circ_act / self.speed_act  # time for one revolution
-        print(f"self.maxright=")
         return 1000 * (rev_time * self.maxright / 360.0)  # expected time to get to max angle in millisecs
 
     def calibration_check(self):
