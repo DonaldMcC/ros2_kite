@@ -306,7 +306,8 @@ kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(
     control.centrex, control.centrey, mode='fig8')
 base = Base(kitebarratio=1, safety=True)
 
-serial_conn = init_arduino("COM7", 57600)
+# for now set to False when no arduino - but may want a full mock setup soon
+serial_conn = init_arduino("COM7", 57600, False)
 
 while config.source not in {1, 2}:
     config.source = input('Key 1 for camera or 2 for source')
@@ -529,21 +530,17 @@ while True:
         pid.update(base.barangle)
         base.action = get_action(pid.output, base.barangle)
 
-    base.update_barangle(serial_conn)
+    if serial_conn:
+        base.update_barangle(serial_conn)
     display_motor_msg(base.action, config.setup)
 
-
     cv2.imshow("contours", frame)
-    # below commented due to failing on 18.04
-    # kiteimage.pubimage(imagemessage, frame)
 
     # read pysimplegui events
     event, values = window.read(timeout=0)
     for x in control.newbuttons:  # change the button labels if mode has change
         window[x[0]].Update(x[1])
 
-    joybuttons = None
-    joyaxes = None
     cv2.imshow('contours', frame)
 
     if config.input == 'Keyboard':
@@ -559,7 +556,6 @@ while True:
             quitkey = None
 
     else:  # mouse only
-        # quitkey, resetH = control.joyhandler(joybuttons, joyaxes, kite, base, control, event)
         quitkey, resetH = control.mousehandler(kite, base, control, event)
 
     # added cv2.waitKey back in for ubuntu 22.04 - not clear why it was neeed but window failed to display without it

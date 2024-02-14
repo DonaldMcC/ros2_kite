@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 
-
 # resistance = 200#
 
 # this should always return barangle except when barangle being set from the kite for simulation
@@ -15,6 +14,7 @@ def get_barangle(kite, base, control, config):
         return barangle
 
 
+# this is not currently used - but may need again for simulation
 def get_actmockangle(kite, base, control, config):
     # global mockangle, mockresistance
     mockangle = getangle(base.resistance, base.maxleft, base.maxright,
@@ -57,7 +57,6 @@ def kitemask(c, frame, kitecolours='kite1'):
         boundaries = [([0, 0, 100], [100, 100, 255]),
                       ([0, 50, 150], [120, 220, 255])
                       ]
-
     totmask = 1
     for (lower, upper) in boundaries:
         # create NumPy arrays from the boundaries
@@ -69,8 +68,8 @@ def kitemask(c, frame, kitecolours='kite1'):
         # loop over the boundaries
         mask = cv2.inRange(roi, low, upp)
         totmask *= np.sum(mask)
-        print(x, y, w, h, "cont", cv2.contourArea(c))
-        print("mask: ", np.sum(mask), totmask)
+        # print(x, y, w, h, "cont", cv2.contourArea(c))
+        # print("mask: ", np.sum(mask), totmask)
     return totmask
 
 
@@ -94,8 +93,7 @@ def checklimits(angle, maxleft, maxright):
     return angle
 
 
-def getangle(resistance, maxleft=0, maxright=9999,
-             resistleft=9999, resistright=99999, resistcentre=0):
+def getangle(resistance, maxleft=0, maxright=9999, resistleft=9999, resistright=99999, resistcentre=0):
     """
     :param resistcentre:
     :param resistright:
@@ -129,8 +127,7 @@ def getangle(resistance, maxleft=0, maxright=9999,
 
 
 # TODO - think this should always be called with actual values
-def getresist(angle, maxleft=0, maxright=9999, resistleft=9999,
-              resistright=99999, resistcentre=0):
+def getresist(angle, maxleft=0, maxright=9999, resistleft=9999, resistright=99999, resistcentre=0):
     """
     :param resistcentre:
     :param resistright:
@@ -214,14 +211,14 @@ def calcbarangle(kite, base, controls):
     >>> k=Kite(400, targetangle=10)
     >>> b=Base(barangle=15, kitebarratio=2)
     >>> c=Controls(1)
-    >>> calcbarangle(k,b,c)
+    >>> calcbarangle(k, b, c)
     10
 
     >>> k=Kite(400, phase='TurnR', targetangle=10)
     >>> b=Base(barangle=15, kitebarratio=2)
     >>> c=Controls(1)
-    >>> calcbarangle(k,b,c)
-    40
+    >>> calcbarangle(k, b, c)
+    30
     """
 
     if kite.phase == "TurnR" or kite.phase == "TurnL":

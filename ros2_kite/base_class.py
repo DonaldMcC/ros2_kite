@@ -19,8 +19,8 @@ from ComArduino2PY3 import send_motor_get_barangle
 from mock_arduino import mock_motor_get_barangle
 from kite_funcs import getresist, getangle
 
-conmaxright = 9999
-conmaxleft = 0
+conmaxright = 30
+conmaxleft = -30
 conresistleft = 9999
 conresistright = 99999
 conresistcentre = 0

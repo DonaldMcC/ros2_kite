@@ -243,11 +243,10 @@ def config_bar():
 # ======================================
 if __name__ == "__main__":
     config_bar()
-
     # NOTE the user must ensure that the serial port and baudrate are correct
     # serPort = "/dev/ttyS80"
     sp = init_arduino()
     print('back')
-    # testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
-    # runtest(testdata, sp, 5)
+    testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
+    runtest(testdata, sp, 5)
     sp.close()
