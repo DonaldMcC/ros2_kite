@@ -1,27 +1,7 @@
-//. Motor driver shield- 2012 Copyright (c) Seeed Technology Inc.
-//
-//  Original Author: Jimbo.we
-//  Contribution: LG
-//
-//  This library is free software; you can redistribute it and/or
-//  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License, or (at your option) any later version.
-//
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-//
-//  Now trying to build in some safety - two aspects - maxright and maxleft value of the sensor
-//  Will be set here and enforced in the callback - think we don't all left and right above
-//  Those values but can go opposite way obviously
-//  Second issue is motor commands being sent and resistor not changing
-//  Think we stop when that happens too but probably after a second or so of movement
+//This will sort of follow the main kiteserial but for use with arduino and no motors 
+//for testing on assumption that motors move at set pace 
+//we might remove the safety element and a few things but keep std structure
+
 
 int MAXLEFT = 770;
 int MAXRIGHT = 930;
@@ -52,12 +32,6 @@ int sensorValue = 0;  // variable to store the value coming from the sensor
 
 unsigned long previousmillis = 0;
 unsigned long previoussensor = 0;
-
-
-const byte numLEDs = 2;
-byte ledPin[numLEDs] = {12, 13};
-unsigned long LEDinterval[numLEDs] = {200, 400};
-unsigned long prevLEDmillis[numLEDs] = {0, 0};
 
 const byte buffSize = 40;
 char inputBuffer[buffSize];
@@ -332,7 +306,8 @@ void parseData() {
 //=============
 
 void replyToPC() {
-  sensorValue = analogRead(sensorPin);
+  // for mock we replace below wih assumed movement based on time elapsed
+  //sensorValue = analogRead(sensorPin);
 
   if (newDataFromPC) {
     newDataFromPC = false;

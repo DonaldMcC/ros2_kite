@@ -39,7 +39,6 @@
 
 # NOTES
 #       this program does not include any timeouts to deal with delays in communication
-#
 #       for simplicity the program does NOT search for the comm port - the user must modify the
 #         code to include the correct reference.
 #         search for the lines 
