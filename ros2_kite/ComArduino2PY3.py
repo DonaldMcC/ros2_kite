@@ -124,6 +124,9 @@ def wait_for_arduino(serial_conn):
 
 
 def get_sensor(ard_data):
+    # Will change this to get configuration detail as well as the barangle
+    # worth knowing if we are in mock or actual mode - however ideally results
+    # will be similar but will help analysis to capture this
     msg = ard_data.split(' ')
     print(msg)
     sensor = int(msg[3])
