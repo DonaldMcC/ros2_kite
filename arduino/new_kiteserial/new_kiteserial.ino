@@ -22,7 +22,7 @@
 //  of test and reconfiguration
 
 int maxleft = 770;  //we will leave these values here but would prefer to now set with messages l and
-int maxright = 930; // r and then a number I think
+int maxright = 930; // r and then a number I think so these are no longer constants
 int currdirection = 0;
 bool motorson = false;
 bool safetystop = false;
@@ -36,6 +36,7 @@ int safetycycle = 2000; // amount the resistor should move in period - if less m
 int storedirection;
 int prevsensor = 0;
 unsigned int motormsg;
+unsigned int mode = 1;  // 1 for normal operation, 2 for simulation , 3 for configuration and 4 for test say
 
 int pinI1=8;//define I1 interface
 int pinI2=11;//define I2 interface
@@ -71,6 +72,28 @@ unsigned long curMillis;
 unsigned long prevReplyToPCmillis = 0;
 unsigned long replyToPCinterval = 1000;
 
+// idea would be
+// l or r woud update the maxleft and maxright
+// m would be normal and drive the message
+// s would be a simulation and in some manner then we want to send back the simulation not the actual
+// t would be some sort of test routine and also need a process to figure out maxleft and maxright
+
+
+void setup()
+{
+  pinMode(pinI1,OUTPUT);
+  pinMode(pinI2,OUTPUT);
+  pinMode(speedpinA,OUTPUT);
+  pinMode(pinI3,OUTPUT);
+  pinMode(pinI4,OUTPUT);
+  pinMode(speedpinB,OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+  Serial.begin(57600);
+  delay(500); // delay() is OK in setup as it only happens once
+  // tell the PC we are ready
+  Serial.println("<Arduino is ready>");
+}
+
 
 // Defining callback as unsigned and no measurement on motors we only really need to send
 // left right or stop and logically 0 should be stop - possibly there will eventually be a range
@@ -82,11 +105,6 @@ void callback()
 // motormsg was all that was required
 // think we can maybe send the alphanumeric code of the message which up to now was always m
 
-// idea would be
-// l or r woud update the maxleft and maxright
-// m would be normal and drive the message
-// s would be a simulation and in some manner then we want to send back the simulation not the actual
-// t would be some sort of test routine and also need a process to figure out maxleft and maxright
 
 {
 int speed = 255;
@@ -134,22 +152,6 @@ switch (direction) {
     break;
   }
 }
-}
-
-
-void setup()
-{
-  pinMode(pinI1,OUTPUT);
-  pinMode(pinI2,OUTPUT);
-  pinMode(speedpinA,OUTPUT);
-  pinMode(pinI3,OUTPUT);
-  pinMode(pinI4,OUTPUT);
-  pinMode(speedpinB,OUTPUT);
-  pinMode(LED_BUILTIN, OUTPUT);
-  Serial.begin(57600);
-  delay(500); // delay() is OK in setup as it only happens once
-  // tell the PC we are ready
-  Serial.println("<Arduino is ready>");
 }
 
 
@@ -237,57 +239,72 @@ void loop()
 {
   curMillis = millis();
   getDataFromPC();
-  callback();
+
+  switch (mode) {
+    case 2:
+      forward(speed);
+      break;
+    case 3:
+      left(speed);
+      break;
+    case 4:
+      right(speed);
+      break;
+    default:  //normal operation
+        callback();
+        if (currdirection == 3 && sensorValue < MAXLEFT) {
+            stop();
+        };
+
+        if (currdirection == 4 && sensorValue > MAXRIGHT) {
+            stop();
+        };
+        if (currdirection > 2) {
+            if (!motorson) {
+                startmotorstime = millis();
+                startsensor = sensorValue;
+                motorson = true;
+                sensormax = sensorValue;
+                sensormin = sensorValue;
+                //Serial.print("motorson");
+                //Serial.println();
+            } else {
+                // already running
+                runtime = millis() - startmotorstime;
+                if (runtime > safetycycle) {
+                    if ((sensormax - sensormin) > safetymove) {
+                        //start a new interval
+                        startmotorstime = millis();
+                        sensormax = sensorValue;
+                        sensormin = sensorValue;
+                    } else {
+                        //stop the motors until direction changes
+                        safetystop = true;
+                        //Serial.print("instopzone");
+                        //Serial.println();
+                        storedirection = currdirection;
+                        stop();
+                        }
+                } else {
+                    //update max and min cumulation was unreliable
+                    if (sensorValue > sensormax) {
+                        sensormax = sensorValue;
+                    }
+                    if (sensorValue < sensormin) {
+                        sensormin = sensorValue;
+                    }
+                }
+        }
+        } else {
+            // stopped moving
+            motorson = false;
+        };
+
+    break;
+  }
+
   replyToPC();
 
-  if (currdirection == 3 && sensorValue < MAXLEFT) {
-    stop();
-  };
-
-  if (currdirection == 4 && sensorValue > MAXRIGHT) {
-    stop();
-  };
-
-  if (currdirection > 2) {
-    if (!motorson) {
-      startmotorstime = millis();
-      startsensor = sensorValue;
-      motorson = true;
-      sensormax = sensorValue;
-      sensormin = sensorValue;
-      //Serial.print("motorson");
-      //Serial.println();
-    } else {
-      // already running
-      runtime = millis() - startmotorstime;
-      if (runtime > safetycycle) {
-          if ((sensormax - sensormin) > safetymove) {
-            //start a new interval
-            startmotorstime = millis();
-            sensormax = sensorValue;
-            sensormin = sensorValue;
-          } else {
-            //stop the motors until direction changes
-            safetystop = true;
-            //Serial.print("instopzone");
-            //Serial.println();
-            storedirection = currdirection;
-            stop();
-          }
-      } else {
-        //update max and min cumulation was unreliable
-        if (sensorValue > sensormax) {
-          sensormax = sensorValue;
-        }
-        if (sensorValue < sensormin) {
-          sensormin = sensorValue;
-        }
-      }
-    }
-  } else {
-      // stopped moving
-   motorson = false;
-  };
 
   if (currdirection != storedirection) {
     safetystop = false;
