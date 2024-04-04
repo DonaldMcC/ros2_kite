@@ -19,21 +19,21 @@
 //  So every message would have a mode now which should be fine  - S and M modes will be configured first
 //  Best way to set maxleft and maxright
 
-int maxleft = 770;  //we will leave these values here but would prefer to now set with messages l and
-int maxright = 930; // r and then a number I think so these are no longer constants
-int currdirection = 0;
-bool motorson = false;
-bool safetystop = false;
-unsigned long startmotorstime;
-unsigned long runtime;
-int safetymove = 4;  // amount the resistance should change in safetycycle or safetystop goes true and motors no longer run
-int startsensor;
-int sensormin;
-int sensormax;
-int safetycycle = 2000; // amount the resistor should move in period - if less motors stop until direction changes
-int storedirection;
-int prevsensor = 0;
-unsigned int motormsg;
+int maxLeft = 770;  //we will leave these values here but would prefer to now set with messages l and
+int maxRight = 930; // r and then a number I think so these are no longer constants
+int currDirection = 0;
+bool motorsOn = false;
+bool safetyStop = false;
+unsigned long startMotorsTime;
+unsigned long runTime;
+int safetyMove = 4;  // amount the resistance should change in safetycycle or safetystop goes true and motors no longer run
+int startSensor;
+int sensorMin;
+int sensorMax;
+int safetyCycle = 2000; // amount the resistor should move in period - if less motors stop until direction changes
+int storeDirection;
+int prevSensor = 0;
+unsigned int motorMsg;
 char mode = 'T';  // M for normal operation, S for simulation , L,R for configuration and T for test
 
 int pinI1=8;//define I1 interface
@@ -46,8 +46,8 @@ int spead=255;//define the spead of motor as fast as poss
 int sensorPin = A0;    // select the input pin for the potentiometer
 int sensorValue = 0;  // variable to store the value coming from the sensor
 
-unsigned long previousmillis = 0;
-unsigned long previoussensor = 0;
+unsigned long previousMillis = 0;
+unsigned long previousSensor = 0;
 
 const byte numLEDs = 2;
 byte ledPin[numLEDs] = {12, 13};
@@ -67,7 +67,8 @@ char messageFromPC[buffSize] = {0};
 unsigned long curMillis;
 unsigned long prevReplyToPCmillis = 0;
 unsigned long replyToPCinterval = 1000;
-
+int amountPerCycle = 1
+int simSensor = maxLeft + (maxRight - maxLeft)/2
 
 
 void setup()
@@ -98,18 +99,18 @@ void real_motors()
 
 {
 int speed = 255;
-int rawspeed;
+int rawSpeed;
 int direction=0; //direction of motors
-direction = motormsg / 100;
-rawspeed = motormsg % 100;
-if (rawspeed > 0) {
-speed = int((rawspeed * 255) / 100);
+direction = motorMsg / 100;
+rawspeed = motorMsg % 100;
+if (rawSpeed > 0) {
+speed = int((rawSpeed * 255) / 100);
 }
 else {
   speed = 255;
 };
 
-currdirection = direction;
+currDirection = direction;
 
 if (safetystop == false) {
   switch (direction) {
@@ -144,51 +145,51 @@ if (safetystop == false) {
 }
 // This is all about not breaking the rig by going too far with motors - it may need
 // reworked for my two actuator approach
-if (currdirection == 3 && sensorValue < MAXLEFT) {
+if (currDirection == 3 && sensorValue < MAXLEFT) {
     stop();
     };
 
-if (currdirection == 4 && sensorValue > MAXRIGHT) {
+if (currDirection == 4 && sensorValue > MAXRIGHT) {
     stop();
     };
-if (currdirection > 2) {
-    if (!motorson) {
-        startmotorstime = millis();
-        startsensor = sensorValue;
-        motorson = true;
-        sensormax = sensorValue;
-        sensormin = sensorValue;
+if (currDirection > 2) {
+    if (!motorsOn) {
+        startMotorsTime = millis();
+        startSensor = sensorValue;
+        motorsOn = true;
+        sensorMax = sensorValue;
+        sensorMin = sensorValue;
         //Serial.print("motorson");
         //Serial.println();
         } else {
         // already running
-        runtime = millis() - startmotorstime;
-        if (runtime > safetycycle) {
-          if ((sensormax - sensormin) > safetymove) {
+        runTime = millis() - startMotorsTime;
+        if (runTime > safetyCycle) {
+          if ((sensorMax - sensorMin) > safetyMove) {
             //start a new interval
-            startmotorstime = millis();
-            sensormax = sensorValue;
-            sensormin = sensorValue;
+            startMotorstime = millis();
+            sensorMax = sensorValue;
+            sensorMin = sensorValue;
             } else {
             //stop the motors until direction changes
-            safetystop = true;
+            safetyStop = true;
             //Serial.print("instopzone");
             //Serial.println();
-            storedirection = currdirection;
+            storeDirection = currDirection;
             stop();
             }
         } else {
           //update max and min cumulation was unreliable
-          if (sensorValue > sensormax) {
-              sensormax = sensorValue;
+          if (sensorValue > sensorMax) {
+              sensorMax = sensorValue;
               }
           if (sensorValue < sensormin) {
-              sensormin = sensorValue;
+              sensorMin = sensorValue;
               }
           }
         } else {
             // stopped moving
-            motorson = false;
+            motorsOn = false;
         };
     };
 }
@@ -274,8 +275,61 @@ void stop() // these can all stay as is with new setup
 
 void sim_motors()
 {
-  break;
- } 
+  // so this should now adjust the sensorSim variable 
+  // perhaps we do just do an amount per cycle for now
+  // that probably becomes a further config option at some point
+  // think we do this without safety stops as no actual movement taking place
+  // but otherwise keep structure or actual operation eg speed can stay though not
+  // actually using
+  {
+int speed = 255;
+int rawSpeed;
+int direction=0; //direction of motors
+direction = motormsg / 100;
+rawSpeed = motormsg % 100;
+if (rawsPeed > 0) {
+speed = int((rawSpeed * 255) / 100);
+}
+else {
+  speed = 255;
+};
+
+currDirection = direction;
+
+
+if (safetyStop == false) {
+  switch (direction) {
+    case 1:
+      sensorSim = sensorSim - amountPerCycle ;
+      break;
+    case 2:
+      forward(speed);
+      break;
+    case 3:
+      left(speed);
+      break;
+    case 4:
+      right(speed);
+      break;
+    case 6:
+      left_only_forward(speed);
+      break;
+    case 7:
+      left_only_backward(speed);
+      break;
+    case 8:
+      right_only_forward(speed);
+      break;
+    case 9:
+      right_only_backward(speed);
+      break;
+    default:
+        stop();
+    break;
+  }
+}
+
+ 
 
 void loop()
 {
@@ -290,10 +344,12 @@ void loop()
       sim_motors();
       break;
     case 'L':
-      maxleft = motormsg;
+      // configure maxLeft
+      maxLeft = motormsg;
       break;
     case 'R':
-      maxright = motormsg;
+      // configure maxRight
+      maxRight = motormsg;
       break;
     case 'T':
       //will add later
@@ -305,11 +361,11 @@ void loop()
   replyToPC();
 
 
-  if (currdirection != storedirection) {
-    safetystop = false;
+  if (currDirection != storeDirection) {
+    safetyStop = false;
   };
 
-  prevsensor = sensorValue;
+  prevSensor = sensorValue;
   delay(10);
 }
 
@@ -356,8 +412,14 @@ void parseData() {
 //=============
 
 void replyToPC() {
-  sensorValue = analogRead(sensorPin);
 
+  // below will now depend on mode
+  if (mode == 'M') {
+    sensorValue = analogRead(sensorPin);
+    } else {
+    sensorValue = sensorSim;
+    }
+    
   if (newDataFromPC) {
     newDataFromPC = false;
     Serial.print("<Msg ");
