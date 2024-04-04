@@ -272,7 +272,10 @@ void stop() // these can all stay as is with new setup
      digitalWrite(speedpinB,LOW);
 }
 
-
+void sim_motors()
+{
+  break;
+ } 
 
 void loop()
 {
