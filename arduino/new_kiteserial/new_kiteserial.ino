@@ -173,26 +173,25 @@ if (currdirection > 2) {
             //stop the motors until direction changes
             safetystop = true;
             //Serial.print("instopzone");
-                        //Serial.println();
-                        storedirection = currdirection;
-                        stop();
-                        }
-                } else {
-                    //update max and min cumulation was unreliable
-                    if (sensorValue > sensormax) {
-                        sensormax = sensorValue;
-                    }
-                    if (sensorValue < sensormin) {
-                        sensormin = sensorValue;
-                    }
-                }
-        }
+            //Serial.println();
+            storedirection = currdirection;
+            stop();
+            }
+        } else {
+          //update max and min cumulation was unreliable
+          if (sensorValue > sensormax) {
+              sensormax = sensorValue;
+              }
+          if (sensorValue < sensormin) {
+              sensormin = sensorValue;
+              }
+          }
         } else {
             // stopped moving
             motorson = false;
         };
+    };
 }
-
 
 void backward(int speed)  //1 these can all stay as is with new setup
 {
@@ -266,9 +265,10 @@ void right_only_backward(int speed)// these can all stay as is with new setup
      digitalWrite(pinI2,HIGH);//turn DC Motor A move clockwise
      digitalWrite(pinI1,LOW);
 }
+
 void stop() // these can all stay as is with new setup
 {
-     digitalWrite(speedpinA,LOW);// Unenable the pin, to stop the motor. this should be done to avid damaging the motor.
+     digitalWrite(speedpinA,LOW);// Unenable the pin, to stop the motor. to avoid damaging the motor.
      digitalWrite(speedpinB,LOW);
 }
 
@@ -280,17 +280,22 @@ void loop()
   getDataFromPC();
 
   switch (mode) {
-    case 2:
-      forward(speed);
+    case 'M':
+      real_motors();
       break;
-    case 3:
-      left(speed);
+    case 'S':
+      sim_motors();
       break;
-    case 4:
-      right(speed);
+    case 'L':
+      maxleft = motormsg;
       break;
-    default:  //normal operation
-      real_motors();  
+    case 'R':
+      maxright = motormsg;
+      break;
+    case 'T':
+      //will add later
+      break;
+    default:  //do nothing  
       break;
   }
 
