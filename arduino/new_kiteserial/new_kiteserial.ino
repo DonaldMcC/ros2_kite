@@ -1,25 +1,23 @@
-//. Motor driver shield- 2012 Copyright (c) Seeed Technology Inc.
+//. Based on Motor driver shield- 2012 Copyright (c) Seeed Technology Inc.
 //
 //  Original Author: Jimbo.we
 //  Contribution: LG
 //
 //  This library is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU Lesser General Public
-//  License as published by the Free Software Foundation; either
-//  version 2.1 of the License, or (at your option) any later version.
 //
-//  This library is distributed in the hope that it will be useful,
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-//  Lesser General Public License for more details.
-//
-//  You should have received a copy of the GNU Lesser General Public
-//  License along with this library; if not, write to the Free Software
-//  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-//
-//  This will be a rewrite of kiteserial to hopefully support both usage with actual motors and simulation
-//  without motors - the configuration should also become possible to send from python and would also like some sort
-//  of test and reconfiguration
+//  This supports both usage or arduino with  actual motors and simulation ie no motors but returning
+//  the expected change in the angle of the bar it should also suppor test and reconfiguration 
+//  messages
+//  Acceptable messages will always be in the format of <A, 9999> Where A is an uppercase character
+//  and 999 is an integer between 0 and 9999
+//  Supported formats
+//  L or R woud update the maxleft and maxright - these might just get sent at startup
+//  M is the normal and drive the message
+//  S would be a simulation and in some manner then we want to send back the expected resistance not the actual
+//  T would be some sort of test routine and also need a process to figure out maxleft and maxright
+//  So every message would have a mode now which should be fine  - S and M modes will be configured first
+//  Best way to set maxleft and maxright
 
 int maxleft = 770;  //we will leave these values here but would prefer to now set with messages l and
 int maxright = 930; // r and then a number I think so these are no longer constants
@@ -36,7 +34,7 @@ int safetycycle = 2000; // amount the resistor should move in period - if less m
 int storedirection;
 int prevsensor = 0;
 unsigned int motormsg;
-unsigned int mode = 1;  // 1 for normal operation, 2 for simulation , 3 for configuration and 4 for test say
+char mode = 'T';  // M for normal operation, S for simulation , L,R for configuration and T for test
 
 int pinI1=8;//define I1 interface
 int pinI2=11;//define I2 interface
@@ -45,13 +43,11 @@ int pinI3=12;//define I3 interface
 int pinI4=13;//define I4 interface
 int speedpinB=10;//enable motor B
 int spead=255;//define the spead of motor as fast as poss
-
 int sensorPin = A0;    // select the input pin for the potentiometer
 int sensorValue = 0;  // variable to store the value coming from the sensor
 
 unsigned long previousmillis = 0;
 unsigned long previoussensor = 0;
-
 
 const byte numLEDs = 2;
 byte ledPin[numLEDs] = {12, 13};
@@ -72,11 +68,6 @@ unsigned long curMillis;
 unsigned long prevReplyToPCmillis = 0;
 unsigned long replyToPCinterval = 1000;
 
-// idea would be
-// l or r woud update the maxleft and maxright
-// m would be normal and drive the message
-// s would be a simulation and in some manner then we want to send back the simulation not the actual
-// t would be some sort of test routine and also need a process to figure out maxleft and maxright
 
 
 void setup()
@@ -94,13 +85,12 @@ void setup()
   Serial.println("<Arduino is ready>");
 }
 
-
 // Defining callback as unsigned and no measurement on motors we only really need to send
 // left right or stop and logically 0 should be stop - possibly there will eventually be a range
 // of speeds so we will go with first digit being direction and final two being speed
 // with 100-199 being left and 200-299 being right
 
-void callback()
+void real_motors()
 // this is triggered on receipt of message and then drives the motors - original presumption was that
 // motormsg was all that was required
 // think we can maybe send the alphanumeric code of the message which up to now was always m
@@ -122,7 +112,7 @@ else {
 currdirection = direction;
 
 if (safetystop == false) {
-switch (direction) {
+  switch (direction) {
     case 1:
       backward(speed);
       break;
@@ -152,6 +142,55 @@ switch (direction) {
     break;
   }
 }
+// This is all about not breaking the rig by going too far with motors - it may need
+// reworked for my two actuator approach
+if (currdirection == 3 && sensorValue < MAXLEFT) {
+    stop();
+    };
+
+if (currdirection == 4 && sensorValue > MAXRIGHT) {
+    stop();
+    };
+if (currdirection > 2) {
+    if (!motorson) {
+        startmotorstime = millis();
+        startsensor = sensorValue;
+        motorson = true;
+        sensormax = sensorValue;
+        sensormin = sensorValue;
+        //Serial.print("motorson");
+        //Serial.println();
+        } else {
+        // already running
+        runtime = millis() - startmotorstime;
+        if (runtime > safetycycle) {
+          if ((sensormax - sensormin) > safetymove) {
+            //start a new interval
+            startmotorstime = millis();
+            sensormax = sensorValue;
+            sensormin = sensorValue;
+            } else {
+            //stop the motors until direction changes
+            safetystop = true;
+            //Serial.print("instopzone");
+                        //Serial.println();
+                        storedirection = currdirection;
+                        stop();
+                        }
+                } else {
+                    //update max and min cumulation was unreliable
+                    if (sensorValue > sensormax) {
+                        sensormax = sensorValue;
+                    }
+                    if (sensorValue < sensormin) {
+                        sensormin = sensorValue;
+                    }
+                }
+        }
+        } else {
+            // stopped moving
+            motorson = false;
+        };
 }
 
 
@@ -251,56 +290,8 @@ void loop()
       right(speed);
       break;
     default:  //normal operation
-        callback();
-        if (currdirection == 3 && sensorValue < MAXLEFT) {
-            stop();
-        };
-
-        if (currdirection == 4 && sensorValue > MAXRIGHT) {
-            stop();
-        };
-        if (currdirection > 2) {
-            if (!motorson) {
-                startmotorstime = millis();
-                startsensor = sensorValue;
-                motorson = true;
-                sensormax = sensorValue;
-                sensormin = sensorValue;
-                //Serial.print("motorson");
-                //Serial.println();
-            } else {
-                // already running
-                runtime = millis() - startmotorstime;
-                if (runtime > safetycycle) {
-                    if ((sensormax - sensormin) > safetymove) {
-                        //start a new interval
-                        startmotorstime = millis();
-                        sensormax = sensorValue;
-                        sensormin = sensorValue;
-                    } else {
-                        //stop the motors until direction changes
-                        safetystop = true;
-                        //Serial.print("instopzone");
-                        //Serial.println();
-                        storedirection = currdirection;
-                        stop();
-                        }
-                } else {
-                    //update max and min cumulation was unreliable
-                    if (sensorValue > sensormax) {
-                        sensormax = sensorValue;
-                    }
-                    if (sensorValue < sensormin) {
-                        sensormin = sensorValue;
-                    }
-                }
-        }
-        } else {
-            // stopped moving
-            motorson = false;
-        };
-
-    break;
+      real_motors();  
+      break;
   }
 
   replyToPC();
@@ -350,7 +341,7 @@ void parseData() {
   char * strtokIndx; // this is used by strtok() as an index
   strtokIndx = strtok(inputBuffer,",");      // get the first part - the string
   strcpy(messageFromPC, strtokIndx); // copy it to messageFromPC
-
+  mode = messageFromPC[0]
   strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
   motormsg = atoi(strtokIndx);     // convert this part to an integer
 }
