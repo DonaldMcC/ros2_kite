@@ -61,14 +61,17 @@ const char endMarker = '>';
 byte bytesRecvd = 0;
 boolean readInProgress = false;
 boolean newDataFromPC = false;
+int speed = 255;
+int rawSpeed;
+int direction=0; //direction of motors
 
 char messageFromPC[buffSize] = {0};
 
 unsigned long curMillis;
 unsigned long prevReplyToPCmillis = 0;
 unsigned long replyToPCinterval = 1000;
-int amountPerCycle = 1
-int simSensor = maxLeft + (maxRight - maxLeft)/2
+int amountPerCycle = 1;
+int simSensor = maxLeft + (maxRight - maxLeft)/2;
 
 
 void setup()
@@ -91,108 +94,6 @@ void setup()
 // of speeds so we will go with first digit being direction and final two being speed
 // with 100-199 being left and 200-299 being right
 
-void real_motors()
-// this is triggered on receipt of message and then drives the motors - original presumption was that
-// motormsg was all that was required
-// think we can maybe send the alphanumeric code of the message which up to now was always m
-
-
-{
-int speed = 255;
-int rawSpeed;
-int direction=0; //direction of motors
-direction = motorMsg / 100;
-rawspeed = motorMsg % 100;
-if (rawSpeed > 0) {
-speed = int((rawSpeed * 255) / 100);
-}
-else {
-  speed = 255;
-};
-
-currDirection = direction;
-
-if (safetystop == false) {
-  switch (direction) {
-    case 1:
-      backward(speed);
-      break;
-    case 2:
-      forward(speed);
-      break;
-    case 3:
-      left(speed);
-      break;
-    case 4:
-      right(speed);
-      break;
-    case 6:
-      left_only_forward(speed);
-      break;
-    case 7:
-      left_only_backward(speed);
-      break;
-    case 8:
-      right_only_forward(speed);
-      break;
-    case 9:
-      right_only_backward(speed);
-      break;
-    default:
-        stop();
-    break;
-  }
-}
-// This is all about not breaking the rig by going too far with motors - it may need
-// reworked for my two actuator approach
-if (currDirection == 3 && sensorValue < MAXLEFT) {
-    stop();
-    };
-
-if (currDirection == 4 && sensorValue > MAXRIGHT) {
-    stop();
-    };
-if (currDirection > 2) {
-    if (!motorsOn) {
-        startMotorsTime = millis();
-        startSensor = sensorValue;
-        motorsOn = true;
-        sensorMax = sensorValue;
-        sensorMin = sensorValue;
-        //Serial.print("motorson");
-        //Serial.println();
-        } else {
-        // already running
-        runTime = millis() - startMotorsTime;
-        if (runTime > safetyCycle) {
-          if ((sensorMax - sensorMin) > safetyMove) {
-            //start a new interval
-            startMotorstime = millis();
-            sensorMax = sensorValue;
-            sensorMin = sensorValue;
-            } else {
-            //stop the motors until direction changes
-            safetyStop = true;
-            //Serial.print("instopzone");
-            //Serial.println();
-            storeDirection = currDirection;
-            stop();
-            }
-        } else {
-          //update max and min cumulation was unreliable
-          if (sensorValue > sensorMax) {
-              sensorMax = sensorValue;
-              }
-          if (sensorValue < sensormin) {
-              sensorMin = sensorValue;
-              }
-          }
-        } else {
-            // stopped moving
-            motorsOn = false;
-        };
-    };
-}
 
 void backward(int speed)  //1 these can all stay as is with new setup
 {
@@ -275,20 +176,17 @@ void stop() // these can all stay as is with new setup
 
 void sim_motors()
 {
-  // so this should now adjust the sensorSim variable 
+  // so this should now adjust the sensorSim variable
   // perhaps we do just do an amount per cycle for now
   // that probably becomes a further config option at some point
   // think we do this without safety stops as no actual movement taking place
   // but otherwise keep structure or actual operation eg speed can stay though not
   // actually using
-  {
-int speed = 255;
-int rawSpeed;
-int direction=0; //direction of motors
-direction = motormsg / 100;
-rawSpeed = motormsg % 100;
-if (rawsPeed > 0) {
-speed = int((rawSpeed * 255) / 100);
+
+direction = motorMsg / 100;
+rawSpeed = motorMsg % 100;
+if (rawSpeed > 0) {
+  speed = int((rawSpeed * 255) / 100);
 }
 else {
   speed = 255;
@@ -296,11 +194,10 @@ else {
 
 currDirection = direction;
 
-
 if (safetyStop == false) {
   switch (direction) {
     case 1:
-      sensorSim = sensorSim - amountPerCycle ;
+      simSensor = simSensor - amountPerCycle ;
       break;
     case 2:
       forward(speed);
@@ -328,8 +225,108 @@ if (safetyStop == false) {
     break;
   }
 }
+}
 
- 
+
+
+void real_motors()
+{
+  // this is triggered on receipt of message and then drives the motors - original presumption was that
+  // motormsg was all that was required
+  // think we can maybe send the alphanumeric code of the message which up to now was always m
+  direction = motorMsg / 100;
+  rawSpeed = motorMsg % 100;
+  if (rawSpeed > 0) {
+    speed = int((rawSpeed * 255) / 100);
+  }
+  else {
+    speed = 255;
+  };
+
+  currDirection = direction;
+
+  if (safetyStop == false) {
+    switch (direction) {
+      case 1:
+        backward(speed);
+        break;
+      case 2:
+        forward(speed);
+        break;
+      case 3:
+        left(speed);
+        break;
+      case 4:
+        right(speed);
+        break;
+      case 6:
+        left_only_forward(speed);
+        break;
+      case 7:
+        left_only_backward(speed);
+        break;
+      case 8:
+        right_only_forward(speed);
+        break;
+      case 9:
+        right_only_backward(speed);
+        break;
+      default:
+        stop();
+      break;
+    }
+  }
+  // This is all about not breaking the rig by going too far with motors - it may need
+  // reworked for my two actuator approach
+  if (currDirection == 3 && sensorValue < maxLeft) {
+    stop();
+    };
+
+  if (currDirection == 4 && sensorValue > maxRight) {
+    stop();
+    };
+  if (currDirection > 2) {
+    if (!motorsOn) {
+        startMotorsTime = millis();
+        startSensor = sensorValue;
+        motorsOn = true;
+        sensorMax = sensorValue;
+        sensorMin = sensorValue;
+        //Serial.print("motorson");
+        //Serial.println();
+        } else {
+        // already running
+        runTime = millis() - startMotorsTime;
+        if (runTime > safetyCycle) {
+          if ((sensorMax - sensorMin) > safetyMove) {
+            //start a new interval
+            startMotorsTime = millis();
+            sensorMax = sensorValue;
+            sensorMin = sensorValue;
+            } else {
+            //stop the motors until direction changes
+            safetyStop = true;
+            //Serial.print("instopzone");
+            //Serial.println();
+            storeDirection = currDirection;
+            stop();
+            }
+        } else {
+          //update max and min cumulation was unreliable
+          if (sensorValue > sensorMax) {
+              sensorMax = sensorValue;
+              }
+          if (sensorValue < sensorMin) {
+              sensorMin = sensorValue;
+              }
+          }
+        }
+      } else {
+            // stopped moving
+            motorsOn = false;
+        };
+    };
+
 
 void loop()
 {
@@ -345,16 +342,16 @@ void loop()
       break;
     case 'L':
       // configure maxLeft
-      maxLeft = motormsg;
+      maxLeft = motorMsg;
       break;
     case 'R':
       // configure maxRight
-      maxRight = motormsg;
+      maxRight = motorMsg;
       break;
     case 'T':
       //will add later
       break;
-    default:  //do nothing  
+    default:  //do nothing
       break;
   }
 
@@ -405,9 +402,9 @@ void parseData() {
   char * strtokIndx; // this is used by strtok() as an index
   strtokIndx = strtok(inputBuffer,",");      // get the first part - the string
   strcpy(messageFromPC, strtokIndx); // copy it to messageFromPC
-  mode = messageFromPC[0]
+  mode = messageFromPC[0];
   strtokIndx = strtok(NULL, ","); // this continues where the previous call left off
-  motormsg = atoi(strtokIndx);     // convert this part to an integer
+  motorMsg = atoi(strtokIndx);     // convert this part to an integer
 }
 //=============
 
@@ -417,13 +414,13 @@ void replyToPC() {
   if (mode == 'M') {
     sensorValue = analogRead(sensorPin);
     } else {
-    sensorValue = sensorSim;
+    sensorValue = simSensor;
     }
-    
+
   if (newDataFromPC) {
     newDataFromPC = false;
     Serial.print("<Msg ");
-    Serial.print(motormsg);
+    Serial.print(motorMsg);
     Serial.print(" Sensor ");
     Serial.print(sensorValue);
     Serial.print(" Time ");
