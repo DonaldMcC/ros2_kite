@@ -87,7 +87,7 @@ def close_arduino(serial_conn):
 
 
 def send_to_arduino(sendstr, serial_conn):
-    serial_conn.write(sendstr.encode('utf-8'))  # change for Python3
+    serial_conn.write(sendstr.encode('utf-8'))
 
 
 def recv_from_arduino(serial_conn):
@@ -118,8 +118,7 @@ def wait_for_arduino(serial_conn):
         while serial_conn.inWaiting() == 0:
             pass
         msg = recv_from_arduino(serial_conn)
-        print(msg)  # python3 requires parenthesis
-        print('from wait for arduino')
+        print(f'Wait for arduino says {msg}')
     return
 
 
@@ -130,13 +129,14 @@ def get_sensor(ard_data):
     msg = ard_data.split(' ')
     print(msg)
     sensor = int(msg[3])
-    print(sensor)
+    print(f'get sensor got: {sensor}')
     return sensor
 
 
-def send_motor_get_barangle(base,  serial_conn):
+def send_motor_get_barangle(base,  serial_conn, mtype='M', message=base.action):
+    # TODO remove base from this call to make pure function
     # print(f'action{base.action}')
-    send_to_arduino(f'<M, {base.action}>', serial_conn)
+    send_to_arduino(f'<{mtype}, {message}>', serial_conn)
     while serial_conn.inWaiting() == 0:
         pass
     datarecvd = recv_from_arduino(serial_conn)
@@ -245,10 +245,7 @@ def config_bar():
 # ======================================
 if __name__ == "__main__":
     config_bar()
-    # NOTE the user must ensure that the serial port and baudrate are correct
-    # serPort = "/dev/ttyS80"
     sp = init_arduino()
-    print('back')
     testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
     runtest(testdata, sp, 5)
     sp.close()
