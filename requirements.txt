@@ -5,5 +5,5 @@ scipy
 opencv-python
 imutils
 pyserial
-PySimpleGUI
+FreeSimpleGUI
 readchar

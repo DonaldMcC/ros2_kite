@@ -43,7 +43,7 @@
 
 # standard library imports
 import numpy as np
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 import time
 import cv2  # this is required even though pycharm doesn't think so
 import argparse
