@@ -8,8 +8,7 @@
 # the angle of the bar which is now being moved via an arduino connected to two actuators
 #
 # outputs
-# the main outputs will be  the motor instruction to change the angle of the bar but most other values can also be
-# logged
+# the main outputs will be  the motor instruction to change the angle of the bar but most other values are  logged
 # It is also possible to record the video input if required
 #
 # initial configuration
@@ -21,7 +20,7 @@
 # 1 Std - the main controls adjust the height and shape of figure of 8 routing
 # 2 SetFlightMode - starting objective is stability of kite in park position - but also wiggle
 #   and then fig 8 are possible
-# 3 Manflight - the main controls adjust the position and angle of a manual kite
+# 3 Manflight - the main controls adjust the position and angle of a manual kite ie simulation
 # 4 Manbar - controls adjust the angle of the bar as well as key for the route
 #
 #
@@ -47,6 +46,7 @@ import FreeSimpleGUI as sg
 import time
 import cv2  # this is required even though pycharm doesn't think so
 import argparse
+
 # pyimagesearch imports
 from imutils.video import VideoStream
 from panorama import Stitcher

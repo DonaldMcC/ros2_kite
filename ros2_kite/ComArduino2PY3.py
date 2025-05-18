@@ -133,9 +133,10 @@ def get_sensor(ard_data):
     return sensor
 
 
-def send_motor_get_barangle(base,  serial_conn, mtype='M', message=base.action):
+def send_motor_get_barangle(base,  serial_conn, mtype='M'):
     # TODO remove base from this call to make pure function
     # print(f'action{base.action}')
+    message = base.action
     send_to_arduino(f'<{mtype}, {message}>', serial_conn)
     while serial_conn.inWaiting() == 0:
         pass
