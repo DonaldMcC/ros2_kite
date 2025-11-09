@@ -145,24 +145,26 @@ class Base(object):
     # or on manbar when bar should be freely controlled
 
     # bellow needs reworked along with update_barangle
-    def get_barangle(self, kite, config, resistance):
+    def get_barangle(self, kite, config):
         if config.setup == 'KiteBarActual':
             self.barangle = kite.kiteangle / self.kitebarratio
         else:  # automated flight reading from some sort of sensor via ROS
-            self.barangle = getangle(resistance, self.maxleft, self.maxright,
+            self.barangle = getangle(self.resistance, self.maxleft, self.maxright,
                                      self.resistleft, self.resistright, self.resistcentre)
         return
 
     def update_barangle(self, serial_conn):
         # currently this sends the motor action to arduino and gets back
-        # the bar angle reading - three main issues
+        # the resistance - which then gets converted - three main issues
         # 1 updating every time is quite slow so think we check if new action and if not we can be fairly sparse in
         # sending updates - added cycles counter and prev_action to support this
         # 2 we want to simulate the anticipated movement of barangle if arduino not in place
         # 3 we would like to track how good our mock function is compared to reality when we can and potentially
         #  continuously update/learn from practice what the values should be
         if self.action != self.prev_action or self.cycles_counter > self.num_cycles:
-            self.resistance, self.barangle = send_motor_get_barangle(self, serial_conn)
+            self.resistance = send_motor_get_barangle(self, serial_conn)
+            self.barangle = getangle(self.resistance, self.maxleft, self.maxright,
+                        self.resistleft, self.resistright, self.resistcentre)
             self.cycles_counter = 0
         else:
             self.cycles_counter += 1

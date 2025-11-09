@@ -61,7 +61,7 @@ from kite_funcs import kitemask, get_action, get_angles, calc_route
 import PID
 from kite_logging import writelogheader, writepictheader, closelogs
 from ComArduino2PY3 import init_arduino
-
+from control_motors import kiteloop, base
 
 def drawroute(route, centrex, centrey):
     global frame
@@ -304,10 +304,6 @@ config = Config(source=2, kite=args.kite,  numcams=1, check_motor_sim=True, setu
 control = Controls(config.kite, step=16, motortest=args.motortest)
 kite = Kite(300, 400, mode='fig8') if control.config == "Manual" else Kite(
     control.centrex, control.centrey, mode='fig8')
-base = Base(kitebarratio=1, safety=True)
-
-# for now set to False when no arduino - but may want a full mock setup soon
-serial_conn = init_arduino("COM7", 57600, False)
 
 while config.source not in {1, 2}:
     config.source = input('Key 1 for camera or 2 for source')
@@ -347,14 +343,9 @@ kernel = np.ones((5, 5), np.uint8)
 background = None
 #imagemessage = KiteImage()
 
-# def test_pid(P = 1.0,  I = 0.0, D= 0.0, L=100):
-pid = PID.PID(1, 0, 0)
-pid.setSampleTime(0.01)
-
 # initialize the list of tracked points, the frame counter,
 # and the coordinate deltas
 counter = 0
-
 sg.theme('Black')  # Pysimplegui setup
 
 # below is proving clunky if we may start with any mode as the buttons names get fixed here - so if keeping this logic
@@ -405,7 +396,7 @@ while True:
     else:
         left = leftStream.read()
         right = rightStream.read()
-        # below is because opencv only stitches horizontally
+        # below is because opencv only stitchess horizontally
         left = cv2.transpose(left)
         right = cv2.transpose(right)
 
@@ -519,21 +510,10 @@ while True:
     display_flight(width)
     display_base(width)
 
-    # kite_pos(kite.x, kite.y, kite.kiteangle, kite.dX, kite.dY, 0, 0)
-    # TODO - think below should possibly be part of update_barangle
-    # but will leave for now
-    doaction = True if control.motortest or base.calibrate or control.inputmode == 3 else False
+    #section below removed and in control_motors called by kiteloop
+    kiteloop(control)
 
-    if not doaction:
-        # TODO Look at what this doaction stuff is all about
-        pid.SetPoint = base.targetbarangle
-        pid.update(base.barangle)
-        base.action = get_action(pid.output, base.barangle)
-
-    if serial_conn:
-        base.update_barangle(serial_conn)
     display_motor_msg(base.action, config.setup)
-
     cv2.imshow("contours", frame)
 
     # read pysimplegui events

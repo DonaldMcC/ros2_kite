@@ -133,19 +133,16 @@ def get_sensor(ard_data):
     return sensor
 
 
-def send_motor_get_barangle(base,  serial_conn, mtype='M'):
-    # TODO remove base from this call to make pure function
-    # print(f'action{base.action}')
-    message = base.action
+def send_motor_get_barangle(action,  serial_conn, mtype='M'):
+    print(f'action{action}')
+    message = action
     send_to_arduino(f'<{mtype}, {message}>', serial_conn)
     while serial_conn.inWaiting() == 0:
         pass
     datarecvd = recv_from_arduino(serial_conn)
-    # print("Reply Received  " + datarecvd)
+    print("Reply Received  " + datarecvd)
     resistance = get_sensor(datarecvd)
-    barangle = getangle(resistance, base.maxleft, base.maxright,
-                        base.resistleft, base.resistright, base.resistcentre)
-    return resistance, barangle
+    return resistance
 
 
 def runtest(td, serial_conn, sleep=1):
