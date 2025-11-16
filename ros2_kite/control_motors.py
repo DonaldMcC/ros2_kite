@@ -10,14 +10,15 @@
 
 import pygame
 from base_class import Base
-from ComArduino2PY3 import init_arduino
+from ComArduino2PY3 import init_arduino, serialport
 import PID  # https://github.com/ivmech/ivPID
 from kite_funcs import get_action
+got_arduino = True
 
 base = Base(kitebarratio=1, safety=True)
 
 # for now set to False when no arduino - but may want a full mock setup soon
-serial_conn = init_arduino("COM7", 57600, False)
+serial_conn = init_arduino(serialport, 57600, got_arduino)
 
 # pid setup from basic_motion_detection
 pid = PID.PID(1, 0, 0)

@@ -57,7 +57,7 @@ import serial
 import time
 from readchar import readkey
 
-from kite_funcs import getangle
+serialport = 'COM5'
 startmarker = 60
 endmarker = 62
 
@@ -66,7 +66,7 @@ endmarker = 62
 # =====================================
 
 
-def init_arduino(serport='COM7', baudrate=57600, got_arduino=True):
+def init_arduino(serport=serialport, baudrate=57600, got_arduino=True):
     # NOTE the user must ensure that the serial port and baudrate are correct
     # serPort = "/dev/ttyS80"
     if got_arduino:
@@ -242,7 +242,6 @@ def config_bar():
 # THE DEMO PROGRAM STARTS HERE
 # ======================================
 if __name__ == "__main__":
-    config_bar()
     sp = init_arduino()
     testdata = ["<M, 100>", "<M, 200>", "<M, 300>", "<M, 400>", "<M, 500>", "<M, 600>"]
     runtest(testdata, sp, 5)
